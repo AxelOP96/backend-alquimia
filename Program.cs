@@ -1,82 +1,99 @@
 using backendAlquimia.Data;
 using backendAlquimia.Data.Entities;
-using backendAlquimia.Services.Interfaces;
 using backendAlquimia.Services;
+using backendAlquimia.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ─────────────────────────────────────────────
+// ► CONFIGURACIONES BÁSICAS
+// ─────────────────────────────────────────────
 var connectionString = Environment.GetEnvironmentVariable("ALQUIMIA_DB_CONNECTION")
                       ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-var clientId = builder.Configuration["OAuth:ClientID"];
-var clientSecret = builder.Configuration["OAuth:ClientSecret"];
+// OAuth (Google): se leerán sólo si existen
+var googleId = builder.Configuration["OAuth:ClientID"];
+var googleSecret = builder.Configuration["OAuth:ClientSecret"];
 
-// Add services to the container.
-//builder.Services.AddControllersWithViews();
+// ─────────────────────────────────────────────
+// ► SERVICIOS
+// ─────────────────────────────────────────────
+builder.Services.AddControllersWithViews()
+                .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<INotaService, NotaService>();
-builder.Services.AddControllersWithViews().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.PropertyNamingPolicy = null; // Para que respete nombres C#
-});
-builder.Services.AddDbContext<AlquimiaDbContext>(options =>
-    options.UseSqlServer(connectionString));
+
+builder.Services.AddDbContext<AlquimiaDbContext>(opt =>
+    opt.UseSqlServer(connectionString));
+
 builder.Services.AddIdentity<Usuario, Rol>()
     .AddEntityFrameworkStores<AlquimiaDbContext>()
     .AddDefaultTokenProviders();
-builder.Services.ConfigureApplicationCookie(options =>
+
+builder.Services.ConfigureApplicationCookie(opt =>
 {
-    options.Cookie.SameSite = SameSiteMode.None; // importante
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // asegura HTTPS
+    opt.Cookie.SameSite = SameSiteMode.None;
+    opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
-/*builder.Services.AddAuthentication(options =>
+// Autenticación base
+builder.Services.AddAuthentication();
+
+// Google OAuth solo si existen credenciales válidas
+if (!string.IsNullOrWhiteSpace(googleId) && !string.IsNullOrWhiteSpace(googleSecret))
 {
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-})
-.AddIdentityCookies(); */
+    builder.Services.AddAuthentication()
+        .AddGoogle(opt =>
+        {
+            opt.ClientId = googleId;
+            opt.ClientSecret = googleSecret;
+            opt.CallbackPath = "/signin-google";
+            opt.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+        });
+}
 
-builder.Services.AddAuthentication()
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["OAuth:ClientID"];
-        options.ClientSecret = builder.Configuration["OAuth:ClientSecret"];
-        options.CallbackPath = "/signin-google";
-        options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-    });
-
-
-
-
-builder.Services.AddCors(options =>
+// CORS para el front‑end
+builder.Services.AddCors(opt =>
 {
-    options.AddPolicy("FrontendPolicy", policy =>
-    {
-        policy.WithOrigins("http://localhost:3000",// Next.js dev server
-            "https://localhost:5173"  // Vite auth
-            ) 
+    opt.AddPolicy("FrontendPolicy", policy =>
+        policy.WithOrigins("http://localhost:3000", "https://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
-    });
+              .AllowCredentials());
 });
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// ─────────────────────────────────────────────
+// ► PIPELINE HTTP
+// ─────────────────────────────────────────────
+
+if (app.Environment.IsDevelopment())
+{
+    // Swagger habilitado solo en desarrollo
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseCors("FrontendPolicy");
+
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
