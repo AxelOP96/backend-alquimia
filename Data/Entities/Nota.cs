@@ -1,22 +1,23 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace backendAlquimia.Data.Entities
 {
     public class Nota
     {
-        public int Id { get; set; }                         
+        public int Id { get; set; }
 
-        [StringLength(50)]
+        [StringLength(150)]
         public string Nombre { get; set; }
+
+        // FK → FamiliaOlfativa
         public int FamiliaOlfativaId { get; set; }
         public FamiliaOlfativa FamiliaOlfativa { get; set; }
 
-        [StringLength(100)]
+        [StringLength(150)]
         public string Descripcion { get; set; }
-        public PiramideOlfativa Sector { get; set; }
-        public int SectorId { get; set; }
 
+        // FK → PiramideOlfativa (Sector)
+        public int SectorId { get; set; }
+        public PiramideOlfativa Sector { get; set; }
     }
 }

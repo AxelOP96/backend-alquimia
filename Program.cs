@@ -3,6 +3,9 @@ using backendAlquimia.Data.Entities;
 using backendAlquimia.Services;
 using backendAlquimia.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,17 +17,16 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = Environment.GetEnvironmentVariable("ALQUIMIA_DB_CONNECTION")
                       ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-// OAuth (Google): se leerán sólo si existen
+// OAuth de Google (opcional)
 var googleId = builder.Configuration["OAuth:ClientID"];
 var googleSecret = builder.Configuration["OAuth:ClientSecret"];
 
 // ─────────────────────────────────────────────
-// ► SERVICIOS
+// ► REGISTRO DE SERVICIOS
 // ─────────────────────────────────────────────
 builder.Services.AddControllersWithViews()
-                .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
+       .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
 
-// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -34,35 +36,33 @@ builder.Services.AddDbContext<AlquimiaDbContext>(opt =>
     opt.UseSqlServer(connectionString));
 
 builder.Services.AddIdentity<Usuario, Rol>()
-    .AddEntityFrameworkStores<AlquimiaDbContext>()
-    .AddDefaultTokenProviders();
+       .AddEntityFrameworkStores<AlquimiaDbContext>()
+       .AddDefaultTokenProviders();
 
-builder.Services.ConfigureApplicationCookie(opt =>
+builder.Services.ConfigureApplicationCookie(opts =>
 {
-    opt.Cookie.SameSite = SameSiteMode.None;
-    opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    opts.Cookie.SameSite = SameSiteMode.None;
+    opts.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
-// Autenticación base
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+       .AddCookie();
 
-// Google OAuth solo si existen credenciales válidas
 if (!string.IsNullOrWhiteSpace(googleId) && !string.IsNullOrWhiteSpace(googleSecret))
 {
     builder.Services.AddAuthentication()
-        .AddGoogle(opt =>
-        {
-            opt.ClientId = googleId;
-            opt.ClientSecret = googleSecret;
-            opt.CallbackPath = "/signin-google";
-            opt.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-        });
+       .AddGoogle(opts =>
+       {
+           opts.ClientId = googleId;
+           opts.ClientSecret = googleSecret;
+           opts.CallbackPath = "/signin-google";
+           opts.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+       });
 }
 
-// CORS para el front‑end
-builder.Services.AddCors(opt =>
+builder.Services.AddCors(opts =>
 {
-    opt.AddPolicy("FrontendPolicy", policy =>
+    opts.AddPolicy("FrontendPolicy", policy =>
         policy.WithOrigins("http://localhost:3000", "https://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
@@ -72,12 +72,22 @@ builder.Services.AddCors(opt =>
 var app = builder.Build();
 
 // ─────────────────────────────────────────────
+// ► BORRAR Y CREAR LA BD SEGÚN EL MODELO
+//   (ejecuta también todos los HasData() definidos
+//    dentro de AlquimiaDbContext.OnModelCreating)
+// ─────────────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AlquimiaDbContext>();
+    db.Database.EnsureDeleted();
+    db.Database.EnsureCreated();
+}
+
+// ─────────────────────────────────────────────
 // ► PIPELINE HTTP
 // ─────────────────────────────────────────────
-
 if (app.Environment.IsDevelopment())
 {
-    // Swagger habilitado solo en desarrollo
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -99,6 +109,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
 app.Run();
