@@ -15,5 +15,5 @@ public class Producto
     public float Price { get; set; }
     public int Stock { get; set; }
     public int IdProveedor { get; set; }
-    public Proveedor Proveedor { get; set; } = new();
+    public Usuario Proveedor { get; set; } = new();
 }

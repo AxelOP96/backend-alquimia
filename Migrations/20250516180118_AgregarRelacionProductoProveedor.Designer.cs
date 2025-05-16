@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backendAlquimia.Data;
 
@@ -11,13 +12,15 @@ using backendAlquimia.Data;
 namespace backendAlquimia.Migrations
 {
     [DbContext(typeof(AlquimiaDbContext))]
-    partial class AlquimiaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250516180118_AgregarRelacionProductoProveedor")]
+    partial class AgregarRelacionProductoProveedor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.5")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -214,80 +217,6 @@ namespace backendAlquimia.Migrations
                     b.ToTable("Combinaciones");
                 });
 
-            modelBuilder.Entity("backendAlquimia.Data.Entities.CompatibilidadFamiliaOlfativa", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("FamiliaOlfativaAId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FamiliaOlfativaBId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FamiliaOlfativaBId");
-
-                    b.HasIndex("FamiliaOlfativaAId", "FamiliaOlfativaBId")
-                        .IsUnique();
-
-                    b.ToTable("CompatibilidadFamiliasOlfativas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            FamiliaOlfativaAId = 1,
-                            FamiliaOlfativaBId = 3
-                        },
-                        new
-                        {
-                            Id = 2,
-                            FamiliaOlfativaAId = 1,
-                            FamiliaOlfativaBId = 6
-                        },
-                        new
-                        {
-                            Id = 3,
-                            FamiliaOlfativaAId = 2,
-                            FamiliaOlfativaBId = 3
-                        },
-                        new
-                        {
-                            Id = 4,
-                            FamiliaOlfativaAId = 3,
-                            FamiliaOlfativaBId = 5
-                        },
-                        new
-                        {
-                            Id = 5,
-                            FamiliaOlfativaAId = 4,
-                            FamiliaOlfativaBId = 5
-                        },
-                        new
-                        {
-                            Id = 6,
-                            FamiliaOlfativaAId = 4,
-                            FamiliaOlfativaBId = 9
-                        },
-                        new
-                        {
-                            Id = 7,
-                            FamiliaOlfativaAId = 8,
-                            FamiliaOlfativaBId = 4
-                        },
-                        new
-                        {
-                            Id = 8,
-                            FamiliaOlfativaAId = 10,
-                            FamiliaOlfativaBId = 1
-                        });
-                });
-
             modelBuilder.Entity("backendAlquimia.Data.Entities.CreacionFinal", b =>
                 {
                     b.Property<int>("Id")
@@ -354,68 +283,6 @@ namespace backendAlquimia.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("FamiliasOlfativas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Notas frescas y chispeantes derivadas de cítricos.",
-                            Nombre = "Cítrica"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Acordes dulces y jugosos de frutas no cítricas.",
-                            Nombre = "Frutal"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Bouquet de flores de tallo, pétalos y capullos.",
-                            Nombre = "Floral"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Description = "Acordes especiados, resinosos y cálidos.",
-                            Nombre = "Oriental"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Description = "Esencias de maderas secas, resinosas o ahumadas.",
-                            Nombre = "Amaderada"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Description = "Hierbas y plantas de aroma fresco y limpio.",
-                            Nombre = "Aromática"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Description = "Hojas y tallos recién cortados, sensación herbal.",
-                            Nombre = "Verde"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Description = "Notas comestibles, dulces y reconfortantes.",
-                            Nombre = "Gourmand"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Description = "Acordes suaves, limpios y almizclados.",
-                            Nombre = "Almizclada"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Description = "Sensación marina y de brisa fresca y húmeda.",
-                            Nombre = "Acuática"
-                        });
                 });
 
             modelBuilder.Entity("backendAlquimia.Data.Entities.Formula", b =>
@@ -429,19 +296,29 @@ namespace backendAlquimia.Migrations
                     b.Property<int>("CombinacionId")
                         .HasColumnType("int");
 
+                    b.Property<int>("CombinacionId1")
+                        .HasColumnType("int");
+
                     b.Property<int>("CreadorId")
                         .HasColumnType("int");
 
                     b.Property<int>("IntensidadId")
                         .HasColumnType("int");
 
+                    b.Property<int>("IntensidadId1")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CombinacionId");
 
+                    b.HasIndex("CombinacionId1");
+
                     b.HasIndex("CreadorId");
 
                     b.HasIndex("IntensidadId");
+
+                    b.HasIndex("IntensidadId1");
 
                     b.ToTable("Formulas");
                 });
@@ -456,16 +333,16 @@ namespace backendAlquimia.Migrations
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("FamiliaOlfativaId")
                         .HasColumnType("int");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("SectorId")
                         .HasColumnType("int");
@@ -482,144 +359,6 @@ namespace backendAlquimia.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Notas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Descripcion = "Cítrico verde, chispeante y ligeramente floral.",
-                            FamiliaOlfativaId = 1,
-                            Nombre = "Bergamota",
-                            SectorId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Descripcion = "Cítrico luminoso y ácido, recuerda a la piel de limón.",
-                            FamiliaOlfativaId = 1,
-                            Nombre = "Limón",
-                            SectorId = 1
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Descripcion = "Cítrico dulce y jugoso, con matiz infantil y alegre.",
-                            FamiliaOlfativaId = 1,
-                            Nombre = "Mandarina",
-                            SectorId = 1
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Descripcion = "Frutal crujiente, faceta verde-dulce que aporta frescura.",
-                            FamiliaOlfativaId = 2,
-                            Nombre = "Manzana",
-                            SectorId = 1
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Descripcion = "Fruta roja ácida y azucarada, da un tono juvenil.",
-                            FamiliaOlfativaId = 2,
-                            Nombre = "Frambuesa",
-                            SectorId = 1
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Descripcion = "Floral clásico, aterciopelado y ligeramente especiado.",
-                            FamiliaOlfativaId = 3,
-                            Nombre = "Rosa",
-                            SectorId = 2
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Descripcion = "Floral blanco, opulento, con matiz indólico y sensual.",
-                            FamiliaOlfativaId = 3,
-                            Nombre = "Jazmín",
-                            SectorId = 2
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Descripcion = "Dulce, cremosa y envolvente; aporta calidez oriental.",
-                            FamiliaOlfativaId = 4,
-                            Nombre = "Vainilla",
-                            SectorId = 3
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Descripcion = "Acorde resinoso-balsámico, aporta profundidad y dulzor.",
-                            FamiliaOlfativaId = 4,
-                            Nombre = "Ámbar",
-                            SectorId = 3
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Descripcion = "Madera lactónica, suave y cremosa con faceta almizclada.",
-                            FamiliaOlfativaId = 5,
-                            Nombre = "Sándalo",
-                            SectorId = 3
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Descripcion = "Madera seca, terrosa y ligeramente ahumada.",
-                            FamiliaOlfativaId = 5,
-                            Nombre = "Cedro",
-                            SectorId = 3
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Descripcion = "Aromática herbal, calmante y limpia (toque alcanforado).",
-                            FamiliaOlfativaId = 6,
-                            Nombre = "Lavanda",
-                            SectorId = 2
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Descripcion = "Aromática verde con punto terroso y fresco.",
-                            FamiliaOlfativaId = 6,
-                            Nombre = "Salvia",
-                            SectorId = 2
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Descripcion = "Verde lechoso, natural y ligeramente afrutado.",
-                            FamiliaOlfativaId = 7,
-                            Nombre = "Hoja de Higuera",
-                            SectorId = 1
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Descripcion = "Cacao profundo, cremoso y envolvente, efecto gourmand.",
-                            FamiliaOlfativaId = 8,
-                            Nombre = "Chocolate",
-                            SectorId = 3
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Descripcion = "Suave, limpio y empolvado; fija y da sensación de piel.",
-                            FamiliaOlfativaId = 9,
-                            Nombre = "Almizcle Blanco",
-                            SectorId = 3
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Descripcion = "Acorde ozónico-salado que evoca aire marino fresco.",
-                            FamiliaOlfativaId = 10,
-                            Nombre = "Brisa Marina",
-                            SectorId = 1
-                        });
                 });
 
             modelBuilder.Entity("backendAlquimia.Data.Entities.Opinion", b =>
@@ -674,45 +413,16 @@ namespace backendAlquimia.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
                     b.Property<TimeSpan>("Duracion")
                         .HasColumnType("time");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sectores");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Notas que se perciben inmediatamente.",
-                            Duracion = new TimeSpan(0, 1, 0, 0, 0),
-                            Nombre = "Salida"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Notas que definen el carácter del perfume.",
-                            Duracion = new TimeSpan(0, 4, 0, 0, 0),
-                            Nombre = "Corazón"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Notas de base, las más persistentes.",
-                            Duracion = new TimeSpan(0, 8, 0, 0, 0),
-                            Nombre = "Fondo"
-                        });
+                    b.ToTable("PiramideOlfativa");
                 });
 
             modelBuilder.Entity("backendAlquimia.Data.Entities.Producto", b =>
@@ -819,7 +529,8 @@ namespace backendAlquimia.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
@@ -1001,43 +712,24 @@ namespace backendAlquimia.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("backendAlquimia.Data.Entities.CompatibilidadFamiliaOlfativa", b =>
-                {
-                    b.HasOne("backendAlquimia.Data.Entities.FamiliaOlfativa", "FamiliaOlfativaA")
-                        .WithMany()
-                        .HasForeignKey("FamiliaOlfativaAId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("backendAlquimia.Data.Entities.FamiliaOlfativa", "FamiliaOlfativaB")
-                        .WithMany()
-                        .HasForeignKey("FamiliaOlfativaBId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FamiliaOlfativaA");
-
-                    b.Navigation("FamiliaOlfativaB");
-                });
-
             modelBuilder.Entity("backendAlquimia.Data.Entities.CreacionFinal", b =>
                 {
                     b.HasOne("backendAlquimia.Data.Entities.Usuario", "Creador")
                         .WithMany("HistorialDeCreaciones")
                         .HasForeignKey("CreadorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("backendAlquimia.Data.Entities.Formula", "Formula")
                         .WithMany()
                         .HasForeignKey("IdFormula")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("backendAlquimia.Data.Entities.Pedido", "Pedido")
                         .WithMany()
                         .HasForeignKey("IdPedido")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Creador");
@@ -1056,13 +748,11 @@ namespace backendAlquimia.Migrations
 
             modelBuilder.Entity("backendAlquimia.Data.Entities.Formula", b =>
                 {
-                    b.HasOne("backendAlquimia.Data.Entities.Combinacion", "Combinacion")
+                    b.HasOne("backendAlquimia.Data.Entities.Combinacion", null)
                         .WithMany()
                         .HasForeignKey("CombinacionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("backendAlquimia.Data.Entities.Creador", "Creador");
 
                     b.HasOne("backendAlquimia.Data.Entities.Combinacion", "Combinacion")
                         .WithMany()
@@ -1071,16 +761,21 @@ namespace backendAlquimia.Migrations
                         .IsRequired();
 
                     b.HasOne("backendAlquimia.Data.Entities.Usuario", "Creador")
-
                         .WithMany("Formulas")
                         .HasForeignKey("CreadorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Intensidad", "Intensidad")
+                    b.HasOne("Intensidad", null)
                         .WithMany()
                         .HasForeignKey("IntensidadId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Intensidad", "Intensidad")
+                        .WithMany()
+                        .HasForeignKey("IntensidadId1")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Combinacion");
@@ -1101,7 +796,7 @@ namespace backendAlquimia.Migrations
                     b.HasOne("backendAlquimia.Data.Entities.PiramideOlfativa", "Sector")
                         .WithMany("Notas")
                         .HasForeignKey("SectorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("backendAlquimia.Data.Entities.Usuario", null)

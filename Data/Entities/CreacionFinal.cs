@@ -8,7 +8,7 @@ public class CreacionFinal
     public int IdProducto { get; set; }
     public List<Producto> Productos { get; set; } = new();
     public int CreadorId { get; set; }
-    public Creador Creador { get; set; }
+    public Usuario Creador { get; set; }
     public int IdPedido { get; set; }
     public Pedido Pedido { get; set; }
     public double ConcentracionAlcohol { get; set; }

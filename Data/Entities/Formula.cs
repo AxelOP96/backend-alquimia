@@ -14,7 +14,7 @@ namespace backendAlquimia.Data.Entities
         public Intensidad Intensidad { get; set; }
 
         public int CreadorId { get; set; }
-        public Creador Creador { get; set; }
+        public Usuario Creador { get; set; }
 
 
     }

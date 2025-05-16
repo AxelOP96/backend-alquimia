@@ -12,13 +12,16 @@ namespace backendAlquimia.Data
 
         // ─────────── DbSets ───────────
         public DbSet<Usuario> Usuarios { get; set; }
+
         public DbSet<Creador> Creadores { get; set; }
         public DbSet<Proveedor> Proveedores { get; set; }
+
+        public DbSet<Combinacion> Combinaciones { get; set; }
+
         public DbSet<Nota> Notas { get; set; }
         public DbSet<FamiliaOlfativa> FamiliasOlfativas { get; set; }
         public DbSet<CompatibilidadFamiliaOlfativa> CompatibilidadesFamilias { get; set; }
         public DbSet<PiramideOlfativa> Sectores { get; set; }
-        public DbSet<Combinacion> Combinaciones { get; set; }
         public DbSet<Intensidad> Intensidades { get; set; }
         public DbSet<Formula> Formulas { get; set; }
         public DbSet<CreacionFinal> CreacionesFinales { get; set; }
@@ -30,10 +33,19 @@ namespace backendAlquimia.Data
         {
             base.OnModelCreating(modelBuilder);
 
+
             // — Herencia Usuario/Creador/Proveedor
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
             modelBuilder.Entity<Creador>().HasBaseType<Usuario>().ToTable("Creadores");
             modelBuilder.Entity<Proveedor>().HasBaseType<Usuario>().ToTable("Proveedores");
+
+            // Herencia: Creador y Proveedor extienden Usuario
+            modelBuilder.Entity<Usuario>()
+                .ToTable("Usuarios");
+
+            modelBuilder.Entity<Usuario>()
+                .Property(u => u.Id)
+                .HasColumnName("Id");
 
             // — CreacionFinal → Creador / Formula / Pedido
             modelBuilder.Entity<CreacionFinal>()
@@ -74,6 +86,11 @@ namespace backendAlquimia.Data
             modelBuilder.Entity<Producto>()
                 .Property(p => p.Id)
                 .HasColumnName("Id");
+            modelBuilder.Entity<Producto>()
+            .HasOne(p => p.Proveedor)
+            .WithMany(u => u.Productos)
+            .HasForeignKey(p => p.IdProveedor)
+            .OnDelete(DeleteBehavior.Restrict);
 
             // — CompatibilidadFamiliaOlfativa (sin cascada)
             modelBuilder.Entity<CompatibilidadFamiliaOlfativa>(cfg =>
