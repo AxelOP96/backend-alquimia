@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,13 @@ builder.Services.AddCors(opts =>
               .AllowAnyMethod()
               .AllowCredentials());
 });
+
+builder.Services
+       .AddControllers()
+       .AddJsonOptions(o =>
+       {
+           o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+       });
 
 var app = builder.Build();
 

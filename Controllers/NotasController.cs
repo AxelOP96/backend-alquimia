@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using backendAlquimia.Services;
-using backendAlquimia.Data; // <-- necesario para ApplicationDbContext
-using backendAlquimia.Data.Entities; // <-- necesario para Nota
-using Microsoft.EntityFrameworkCore; // <-- necesario si usás Include
-using System.Linq;
+using backendAlquimia.Data;
+using backendAlquimia.Models;          // Para NotaDTO
+using Microsoft.EntityFrameworkCore;    // Para Include
 
 [ApiController]
 [Route("api/[controller]")]
@@ -19,22 +18,51 @@ public class NotasController : ControllerBase
         _compatSvc = compatSvc;
     }
 
-    // GET /api/notas
+    // GET /api/notas           (sin cambios)
     [HttpGet]
     public IActionResult GetAll() =>
-        Ok(_context.Notas.ToList());
+        Ok(_context.Notas.Include(n => n.FamiliaOlfativa).ToList());
 
-    // POST /api/notas/compatibles
+    /* ---------- NUEVO: acepta GET o POST --------------- */
+
+    // GET  /api/notas/compatibles?ids=1&ids=4&ids=7
+    [HttpGet("compatibles")]
+    public IActionResult CompatiblesGet([FromQuery(Name = "ids")] int[] ids) =>
+        Compatibles(ids);
+
+    // POST /api/notas/compatibles   (body: [1,4,7])
     [HttpPost("compatibles")]
-    public IActionResult GetCompatibles([FromBody] int[] seleccionadas)
+    public IActionResult CompatiblesPost([FromBody] int[] ids) =>
+        Compatibles(ids);
+
+    /* ------------- lógica común ------------------------ */
+    private IActionResult Compatibles(int[] ids)
     {
-        var elegidas = _context.Notas
-                        .Where(n => seleccionadas.Contains(n.Id))
-                        .ToList();
-        var todas = _context.Notas.ToList();
+        ids ??= Array.Empty<int>();
+
+        // ‼️ Si no hay seleccionadas sólo devuelvo notas “candidatas” (self-score >= 60)
+        var seleccionadas = _context.Notas
+                            .Include(n => n.FamiliaOlfativa)
+                            .Where(n => ids.Contains(n.Id))
+                            .ToList();
+
+        var todas = _context.Notas
+                     .Include(n => n.FamiliaOlfativa)
+                     .ToList();
+
         var sugeridas = _compatSvc
-                        .GetCompatibleNotes(elegidas, todas)
-                        .ToList();
+                        .GetCompatibleNotes(seleccionadas, todas)
+                        .Select(n => new NotaDTO   // ← ya existe en Models
+                        {
+                            Id = n.Id,
+                            Nombre = n.Nombre,
+                            Familia = n.FamiliaOlfativa?.Nombre,
+                            Sector = n.Sector?.Nombre,
+                            Descripcion = n.Descripcion
+                        });
+
+
+
         return Ok(sugeridas);
     }
 }
