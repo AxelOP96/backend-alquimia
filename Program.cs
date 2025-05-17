@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,8 @@ builder.Services.ConfigureApplicationCookie(opts =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
        .AddCookie();
 
+builder.Services.AddScoped<ICompatibilityService, CompatibilityService>();
+
 if (!string.IsNullOrWhiteSpace(googleId) && !string.IsNullOrWhiteSpace(googleSecret))
 {
     builder.Services.AddAuthentication()
@@ -59,6 +62,13 @@ if (!string.IsNullOrWhiteSpace(googleId) && !string.IsNullOrWhiteSpace(googleSec
            opts.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
        });
 }
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(pol =>
+        pol.WithOrigins("http://localhost:3000")
+           .AllowAnyHeader()
+           .AllowAnyMethod());
+});
 
 builder.Services.AddCors(opts =>
 {
@@ -111,5 +121,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
+
+app.UseCors();
+
 
 app.Run();
