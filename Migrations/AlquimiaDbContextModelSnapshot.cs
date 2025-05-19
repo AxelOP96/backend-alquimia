@@ -241,6 +241,46 @@ namespace backendAlquimia.Migrations
                     b.ToTable("CompatibilidadesFamilias");
                 });
 
+            modelBuilder.Entity("backendAlquimia.Data.Entities.Etiqueta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AlturaLetra")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ColorEtiqueta")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ColorTexto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Texto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tipografia")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UrlImagen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Etiquetas");
+                });
+
             modelBuilder.Entity("backendAlquimia.Data.Entities.FamiliaOlfativa", b =>
                 {
                     b.Property<int>("Id")
@@ -258,6 +298,10 @@ namespace backendAlquimia.Migrations
                         .IsRequired()
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("UrlImagen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("UsuarioId")
                         .HasColumnType("int");
@@ -330,6 +374,10 @@ namespace backendAlquimia.Migrations
                     b.Property<int>("SectorId")
                         .HasColumnType("int");
 
+                    b.Property<string>("UrlImagen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("UsuarioId")
                         .HasColumnType("int");
 
@@ -372,7 +420,7 @@ namespace backendAlquimia.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Opinion");
+                    b.ToTable("Opiniones");
                 });
 
             modelBuilder.Entity("backendAlquimia.Data.Entities.Pedido", b =>
@@ -400,6 +448,10 @@ namespace backendAlquimia.Migrations
                         .HasColumnType("time");
 
                     b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UrlImagen")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -441,6 +493,14 @@ namespace backendAlquimia.Migrations
 
                     b.Property<int>("TipoProductoId")
                         .HasColumnType("int");
+
+                    b.Property<string>("UrlDeRedireccionHaciaLaPaginaDondeSePuedeComprar")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UrlImagen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("UsuarioId")
                         .HasColumnType("int");
@@ -507,8 +567,7 @@ namespace backendAlquimia.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
+                        .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
@@ -561,6 +620,10 @@ namespace backendAlquimia.Migrations
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
+
+                    b.Property<string>("UrlImagen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)

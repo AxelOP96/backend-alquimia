@@ -44,7 +44,7 @@ namespace backendAlquimia.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Grado = table.Column<int>(type: "int", nullable: false)
+                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -251,13 +251,11 @@ namespace backendAlquimia.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CombinacionId = table.Column<int>(type: "int", nullable: false),
-                    CombinacionId1 = table.Column<int>(type: "int", nullable: false),
-                    IntensidadId = table.Column<int>(type: "int", nullable: false),
-                    IntensidadId1 = table.Column<int>(type: "int", nullable: false),
                     CreadorId = table.Column<int>(type: "int", nullable: false),
                     ConcentracionAlcohol = table.Column<double>(type: "float", nullable: false),
                     ConcentracionAgua = table.Column<double>(type: "float", nullable: false),
-                    ConcentracionEsencia = table.Column<double>(type: "float", nullable: false)
+                    ConcentracionEsencia = table.Column<double>(type: "float", nullable: false),
+                    IntensidadId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -269,23 +267,11 @@ namespace backendAlquimia.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Formulas_Combinaciones_CombinacionId1",
-                        column: x => x.CombinacionId1,
-                        principalTable: "Combinaciones",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Formulas_Intensidades_IntensidadId",
                         column: x => x.IntensidadId,
                         principalTable: "Intensidades",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Formulas_Intensidades_IntensidadId1",
-                        column: x => x.IntensidadId1,
-                        principalTable: "Intensidades",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Formulas_Usuarios_CreadorId",
                         column: x => x.CreadorId,
@@ -573,11 +559,6 @@ namespace backendAlquimia.Migrations
                 column: "CombinacionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Formulas_CombinacionId1",
-                table: "Formulas",
-                column: "CombinacionId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Formulas_CreadorId",
                 table: "Formulas",
                 column: "CreadorId");
@@ -586,11 +567,6 @@ namespace backendAlquimia.Migrations
                 name: "IX_Formulas_IntensidadId",
                 table: "Formulas",
                 column: "IntensidadId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Formulas_IntensidadId1",
-                table: "Formulas",
-                column: "IntensidadId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notas_FamiliaOlfativaId",

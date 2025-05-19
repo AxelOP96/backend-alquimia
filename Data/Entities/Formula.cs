@@ -1,4 +1,6 @@
-﻿namespace backendAlquimia.Data.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace backendAlquimia.Data.Entities
 {
     public class Formula
     {
@@ -10,8 +12,10 @@
         public double ConcentracionAlcohol { get; set; }
         public double ConcentracionAgua { get; set; }
         public double ConcentracionEsencia { get; set; }
-        public int IntensidadId { get; set; }
-        public Intensidad Intensidad { get; set; }
+        public int IntensidadDatoCalculado { get; set; }
+
+
 
     }
+
 }

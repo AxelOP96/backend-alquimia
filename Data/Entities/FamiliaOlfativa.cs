@@ -11,6 +11,6 @@ namespace backendAlquimia.Data.Entities
         public string Nombre { get; set; }                  
         [MaxLength(100)]
         public string Description {  get; set; }
-        
+        public string UrlImagen { get; set; }
     }
 }

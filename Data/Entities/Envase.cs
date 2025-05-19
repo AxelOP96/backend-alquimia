@@ -7,5 +7,7 @@
         public int Volumen { get; set; }
         public int IdEtiqueta { get; set; }
         public Etiqueta Etiqueta { get; set; } = new();
+        public string UrlImagen { get; set; }
+        public string Descripcion { get; set; }
     }
 }

@@ -16,4 +16,6 @@ public class Producto
     public int Stock { get; set; }
     public int IdProveedor { get; set; }
     public Usuario Proveedor { get; set; } = new();
+    public string UrlDeRedireccionHaciaLaPaginaDondeSePuedeComprar { get; set; }
+    public string UrlImagen { get; set; }
 }

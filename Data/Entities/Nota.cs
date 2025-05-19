@@ -17,6 +17,6 @@ namespace backendAlquimia.Data.Entities
         public string Descripcion { get; set; }
         public PiramideOlfativa Sector { get; set; }
         public int SectorId { get; set; }
-
+        public string UrlImagen { get; set; }
     }
 }

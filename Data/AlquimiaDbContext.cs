@@ -16,7 +16,7 @@ namespace backendAlquimia.Data
         public DbSet<Nota> Notas { get; set; }
         public DbSet<FamiliaOlfativa> FamiliasOlfativas { get; set; }
         public DbSet<Formula> Formulas { get; set; }
-        public DbSet<Intensidad> Intensidades { get; set; }
+    
         public DbSet<Producto> Productos { get; set; }
         public DbSet<TipoProducto> TiposProducto { get; set; }
         public DbSet<Pedido> Pedidos { get; set; }
@@ -76,23 +76,61 @@ namespace backendAlquimia.Data
                     .HasMany(p => p.Productos)
                     .WithMany();
             });
-            modelBuilder.Entity<Formula>()
-            .HasOne(f => f.Combinacion)
-            .WithMany()
-            .HasForeignKey(f => f.CombinacionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Formula>(entity =>
+            {
+                entity.ToTable("Formulas");
 
-            modelBuilder.Entity<Formula>()
-            .HasOne(f => f.Intensidad)
-            .WithMany(i => i.Formulas)
-            .HasForeignKey(f => f.IntensidadId)
-            .OnDelete(DeleteBehavior.Restrict);
+                // Clave primaria
+                entity.HasKey(f => f.Id);
 
-            modelBuilder.Entity<Formula>()
-            .HasOne(f => f.Creador)
-            .WithMany(c => c.Formulas)
+                // -------- Propiedades de valor ----------------------------------------
+                entity.Property(f => f.ConcentracionAlcohol)
+                      .HasPrecision(5, 2)          // Ej.: 100.00 %
+                      .IsRequired();
+
+                entity.Property(f => f.ConcentracionAgua)
+                      .HasPrecision(5, 2)
+                      .IsRequired();
+
+                entity.Property(f => f.ConcentracionEsencia)
+                      .HasPrecision(5, 2)
+                      .IsRequired();
+
+                // Si IntensidadDatoCalculado es solo de cálculo, no lo mapeamos
+                entity.Ignore(f => f.IntensidadDatoCalculado);
+
+                // -------- Relaciones --------------------------------------------------
+
+                // Combinación (1-N)  ▸ una Combinacion puede tener muchas fórmulas
+                entity.HasOne(f => f.Combinacion)
+                      .WithMany(c => c.Formulas)         // agrega la colección c.Formulas
+                      .HasForeignKey(f => f.CombinacionId)
+                      .OnDelete(DeleteBehavior.Restrict) // no cascada
+                      .IsRequired();
+
+                // Creador (Usuario)  ▸ un usuario puede crear muchas fórmulas
+                entity.HasOne(f => f.Creador)
+            .WithMany(u => u.Formulas)  // Use the existing Formulas collection
             .HasForeignKey(f => f.CreadorId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
+                // Remove this incorrect relationship configuration
+                // entity.HasOne(f => f.IntensidadDatoCalculado)
+                //      .WithMany()
+                //      .HasForeignKey(f => f.IntensidadId)
+                //      .OnDelete(DeleteBehavior.Restrict)
+                //      .IsRequired();
+
+                // Instead, just configure it as a regular property if needed
+                entity.Property(f => f.IntensidadDatoCalculado)
+                      .IsRequired();
+
+                // -------- Índices / restricciones únicas -----------------------------
+                // Evita que exista más de una fórmula con la misma combinación + creador
+                entity.HasIndex(f => new { f.CombinacionId, f.CreadorId })
+                      .IsUnique();
+            });
+
 
             modelBuilder.Entity<Nota>()
             .HasOne(n => n.Sector)

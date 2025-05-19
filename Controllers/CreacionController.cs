@@ -56,7 +56,7 @@ namespace backendAlquimia.Controllers
         [HttpGet("intensidad")]
         public async Task<IActionResult> GetIntensidad()
         {
-            List<IntensidadDTO> intensidad = await _formulaService.ObtenerIntensidadAsync();
+            List<GETFormulaDTO> intensidad = await _formulaService.ObtenerIntensidadAsync();
             return Ok(intensidad);
         }
 
