@@ -1,12 +1,12 @@
 using backendAlquimia.Data;
 using backendAlquimia.Data.Entities;
+using backendAlquimia.Seed;
 using backendAlquimia.Services;
 using backendAlquimia.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using backendAlquimia.Seed;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -21,6 +21,7 @@ var clientSecret = builder.Configuration["OAuth:ClientSecret"];
 // Add services to the container.
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<INotaService, NotaService>();
+builder.Services.AddScoped<IFormulaService, FormulaService>();
 builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = null; // Para que respete nombres C#

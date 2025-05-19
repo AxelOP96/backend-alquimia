@@ -9,3 +9,7 @@ appsettings.json
 /appsettings.json
 appsettings.*.json
 **/appsettings*.json
+Tests/obj/*
+Tests/bin/*
+*/obj/*
+*/bin/*

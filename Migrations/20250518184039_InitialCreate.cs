@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backendAlquimia.Migrations
 {
     /// <inheritdoc />
-    public partial class InitCleanIdentity : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,26 +39,12 @@ namespace backendAlquimia.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FamiliasOlfativas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FamiliasOlfativas", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Intensidades",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Grado = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -75,6 +61,20 @@ namespace backendAlquimia.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pedidos", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PiramideOlfativa",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Duracion = table.Column<TimeSpan>(type: "time", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PiramideOlfativa", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -97,6 +97,7 @@ namespace backendAlquimia.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EsProveedor = table.Column<bool>(type: "bit", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -134,29 +135,6 @@ namespace backendAlquimia.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Notas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
-                    FamiliaOlfativaId = table.Column<int>(type: "int", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    NotasCompatiblesIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NotasIncompatiblesIds = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Notas", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Notas_FamiliasOlfativas_FamiliaOlfativaId",
-                        column: x => x.FamiliaOlfativaId,
-                        principalTable: "FamiliasOlfativas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -247,35 +225,215 @@ namespace backendAlquimia.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Creadores",
+                name: "FamiliasOlfativas",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Creadores", x => x.Id);
+                    table.PrimaryKey("PK_FamiliasOlfativas", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Creadores_Usuarios_Id",
-                        column: x => x.Id,
+                        name: "FK_FamiliasOlfativas_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
                         principalTable: "Usuarios",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Proveedores",
+                name: "Formulas",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CombinacionId = table.Column<int>(type: "int", nullable: false),
+                    CombinacionId1 = table.Column<int>(type: "int", nullable: false),
+                    IntensidadId = table.Column<int>(type: "int", nullable: false),
+                    IntensidadId1 = table.Column<int>(type: "int", nullable: false),
+                    CreadorId = table.Column<int>(type: "int", nullable: false),
+                    ConcentracionAlcohol = table.Column<double>(type: "float", nullable: false),
+                    ConcentracionAgua = table.Column<double>(type: "float", nullable: false),
+                    ConcentracionEsencia = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Proveedores", x => x.Id);
+                    table.PrimaryKey("PK_Formulas", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Proveedores_Usuarios_Id",
-                        column: x => x.Id,
+                        name: "FK_Formulas_Combinaciones_CombinacionId",
+                        column: x => x.CombinacionId,
+                        principalTable: "Combinaciones",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Formulas_Combinaciones_CombinacionId1",
+                        column: x => x.CombinacionId1,
+                        principalTable: "Combinaciones",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Formulas_Intensidades_IntensidadId",
+                        column: x => x.IntensidadId,
+                        principalTable: "Intensidades",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Formulas_Intensidades_IntensidadId1",
+                        column: x => x.IntensidadId1,
+                        principalTable: "Intensidades",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Formulas_Usuarios_CreadorId",
+                        column: x => x.CreadorId,
                         principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Opinion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IdUsuario = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IdProveedor = table.Column<int>(type: "int", nullable: false),
+                    FechaPublicacion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Opinion", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Opinion_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Productos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IdTipoProducto = table.Column<int>(type: "int", nullable: false),
+                    TipoProductoId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    Stock = table.Column<int>(type: "int", nullable: false),
+                    IdProveedor = table.Column<int>(type: "int", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Productos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Productos_TiposProducto_TipoProductoId",
+                        column: x => x.TipoProductoId,
+                        principalTable: "TiposProducto",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Productos_Usuarios_IdProveedor",
+                        column: x => x.IdProveedor,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Productos_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CompatibilidadesFamilias",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Familia1Id = table.Column<int>(type: "int", nullable: false),
+                    Familia2Id = table.Column<int>(type: "int", nullable: false),
+                    GradoDeCompatibilidad = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CompatibilidadesFamilias", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CompatibilidadesFamilias_FamiliasOlfativas_Familia1Id",
+                        column: x => x.Familia1Id,
+                        principalTable: "FamiliasOlfativas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CompatibilidadesFamilias_FamiliasOlfativas_Familia2Id",
+                        column: x => x.Familia2Id,
+                        principalTable: "FamiliasOlfativas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    FamiliaOlfativaId = table.Column<int>(type: "int", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    SectorId = table.Column<int>(type: "int", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notas_FamiliasOlfativas_FamiliaOlfativaId",
+                        column: x => x.FamiliaOlfativaId,
+                        principalTable: "FamiliasOlfativas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Notas_PiramideOlfativa_SectorId",
+                        column: x => x.SectorId,
+                        principalTable: "PiramideOlfativa",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Notas_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PedidoProducto",
+                columns: table => new
+                {
+                    PedidoId = table.Column<int>(type: "int", nullable: false),
+                    ProductosId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PedidoProducto", x => new { x.PedidoId, x.ProductosId });
+                    table.ForeignKey(
+                        name: "FK_PedidoProducto_Pedidos_PedidoId",
+                        column: x => x.PedidoId,
+                        principalTable: "Pedidos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PedidoProducto_Productos_ProductosId",
+                        column: x => x.ProductosId,
+                        principalTable: "Productos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -352,158 +510,6 @@ namespace backendAlquimia.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Formulas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CombinacionId = table.Column<int>(type: "int", nullable: false),
-                    CombinacionId1 = table.Column<int>(type: "int", nullable: false),
-                    IntensidadId = table.Column<int>(type: "int", nullable: false),
-                    IntensidadId1 = table.Column<int>(type: "int", nullable: false),
-                    CreadorId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Formulas", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Formulas_Combinaciones_CombinacionId",
-                        column: x => x.CombinacionId,
-                        principalTable: "Combinaciones",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Formulas_Combinaciones_CombinacionId1",
-                        column: x => x.CombinacionId1,
-                        principalTable: "Combinaciones",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Formulas_Creadores_CreadorId",
-                        column: x => x.CreadorId,
-                        principalTable: "Creadores",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Formulas_Intensidades_IntensidadId",
-                        column: x => x.IntensidadId,
-                        principalTable: "Intensidades",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Formulas_Intensidades_IntensidadId1",
-                        column: x => x.IntensidadId1,
-                        principalTable: "Intensidades",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CreacionesFinales",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdFormula = table.Column<int>(type: "int", nullable: false),
-                    IdProducto = table.Column<int>(type: "int", nullable: false),
-                    CreadorId = table.Column<int>(type: "int", nullable: false),
-                    IdPedido = table.Column<int>(type: "int", nullable: false),
-                    ConcentracionAlcohol = table.Column<double>(type: "float", nullable: false),
-                    ConcentracionAgua = table.Column<double>(type: "float", nullable: false),
-                    ConcentracionEsencia = table.Column<double>(type: "float", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CreacionesFinales", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CreacionesFinales_Creadores_CreadorId",
-                        column: x => x.CreadorId,
-                        principalTable: "Creadores",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CreacionesFinales_Formulas_IdFormula",
-                        column: x => x.IdFormula,
-                        principalTable: "Formulas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CreacionesFinales_Pedidos_IdPedido",
-                        column: x => x.IdPedido,
-                        principalTable: "Pedidos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Productos",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdTipoProducto = table.Column<int>(type: "int", nullable: false),
-                    TipoProductoId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Price = table.Column<float>(type: "real", nullable: false),
-                    Stock = table.Column<int>(type: "int", nullable: false),
-                    IdProveedor = table.Column<int>(type: "int", nullable: false),
-                    ProveedorId = table.Column<int>(type: "int", nullable: false),
-                    CreacionFinalId = table.Column<int>(type: "int", nullable: true),
-                    CreadorId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Productos", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Productos_CreacionesFinales_CreacionFinalId",
-                        column: x => x.CreacionFinalId,
-                        principalTable: "CreacionesFinales",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Productos_Creadores_CreadorId",
-                        column: x => x.CreadorId,
-                        principalTable: "Creadores",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Productos_Proveedores_ProveedorId",
-                        column: x => x.ProveedorId,
-                        principalTable: "Proveedores",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Productos_TiposProducto_TipoProductoId",
-                        column: x => x.TipoProductoId,
-                        principalTable: "TiposProducto",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PedidoProducto",
-                columns: table => new
-                {
-                    PedidoId = table.Column<int>(type: "int", nullable: false),
-                    ProductosId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PedidoProducto", x => new { x.PedidoId, x.ProductosId });
-                    table.ForeignKey(
-                        name: "FK_PedidoProducto_Pedidos_PedidoId",
-                        column: x => x.PedidoId,
-                        principalTable: "Pedidos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PedidoProducto_Productos_ProductosId",
-                        column: x => x.ProductosId,
-                        principalTable: "Productos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -547,19 +553,19 @@ namespace backendAlquimia.Migrations
                 column: "NotaSalidaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CreacionesFinales_CreadorId",
-                table: "CreacionesFinales",
-                column: "CreadorId");
+                name: "IX_CompatibilidadesFamilias_Familia1Id",
+                table: "CompatibilidadesFamilias",
+                column: "Familia1Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CreacionesFinales_IdFormula",
-                table: "CreacionesFinales",
-                column: "IdFormula");
+                name: "IX_CompatibilidadesFamilias_Familia2Id",
+                table: "CompatibilidadesFamilias",
+                column: "Familia2Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CreacionesFinales_IdPedido",
-                table: "CreacionesFinales",
-                column: "IdPedido");
+                name: "IX_FamiliasOlfativas_UsuarioId",
+                table: "FamiliasOlfativas",
+                column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Formulas_CombinacionId",
@@ -592,29 +598,39 @@ namespace backendAlquimia.Migrations
                 column: "FamiliaOlfativaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Notas_SectorId",
+                table: "Notas",
+                column: "SectorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notas_UsuarioId",
+                table: "Notas",
+                column: "UsuarioId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Opinion_UsuarioId",
+                table: "Opinion",
+                column: "UsuarioId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PedidoProducto_ProductosId",
                 table: "PedidoProducto",
                 column: "ProductosId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Productos_CreacionFinalId",
+                name: "IX_Productos_IdProveedor",
                 table: "Productos",
-                column: "CreacionFinalId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Productos_CreadorId",
-                table: "Productos",
-                column: "CreadorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Productos_ProveedorId",
-                table: "Productos",
-                column: "ProveedorId");
+                column: "IdProveedor");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Productos_TipoProductoId",
                 table: "Productos",
                 column: "TipoProductoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Productos_UsuarioId",
+                table: "Productos",
+                column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -657,6 +673,15 @@ namespace backendAlquimia.Migrations
                 name: "CombinacionNotaSalida");
 
             migrationBuilder.DropTable(
+                name: "CompatibilidadesFamilias");
+
+            migrationBuilder.DropTable(
+                name: "Formulas");
+
+            migrationBuilder.DropTable(
+                name: "Opinion");
+
+            migrationBuilder.DropTable(
                 name: "PedidoProducto");
 
             migrationBuilder.DropTable(
@@ -666,34 +691,25 @@ namespace backendAlquimia.Migrations
                 name: "Notas");
 
             migrationBuilder.DropTable(
+                name: "Combinaciones");
+
+            migrationBuilder.DropTable(
+                name: "Intensidades");
+
+            migrationBuilder.DropTable(
+                name: "Pedidos");
+
+            migrationBuilder.DropTable(
                 name: "Productos");
 
             migrationBuilder.DropTable(
                 name: "FamiliasOlfativas");
 
             migrationBuilder.DropTable(
-                name: "CreacionesFinales");
-
-            migrationBuilder.DropTable(
-                name: "Proveedores");
+                name: "PiramideOlfativa");
 
             migrationBuilder.DropTable(
                 name: "TiposProducto");
-
-            migrationBuilder.DropTable(
-                name: "Formulas");
-
-            migrationBuilder.DropTable(
-                name: "Pedidos");
-
-            migrationBuilder.DropTable(
-                name: "Combinaciones");
-
-            migrationBuilder.DropTable(
-                name: "Creadores");
-
-            migrationBuilder.DropTable(
-                name: "Intensidades");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");

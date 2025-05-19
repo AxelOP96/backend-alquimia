@@ -12,8 +12,8 @@ using backendAlquimia.Data;
 namespace backendAlquimia.Migrations
 {
     [DbContext(typeof(AlquimiaDbContext))]
-    [Migration("20250510113625_InitCleanIdentity")]
-    partial class InitCleanIdentity
+    [Migration("20250519005646_FixIntensidadEnFormula")]
+    partial class FixIntensidadEnFormula
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -218,7 +218,7 @@ namespace backendAlquimia.Migrations
                     b.ToTable("Combinaciones");
                 });
 
-            modelBuilder.Entity("backendAlquimia.Data.Entities.CreacionFinal", b =>
+            modelBuilder.Entity("backendAlquimia.Data.Entities.CompatibilidadesFamilias", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -226,36 +226,22 @@ namespace backendAlquimia.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("ConcentracionAgua")
-                        .HasColumnType("float");
-
-                    b.Property<double>("ConcentracionAlcohol")
-                        .HasColumnType("float");
-
-                    b.Property<double>("ConcentracionEsencia")
-                        .HasColumnType("float");
-
-                    b.Property<int>("CreadorId")
+                    b.Property<int>("Familia1Id")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdFormula")
+                    b.Property<int>("Familia2Id")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdPedido")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdProducto")
+                    b.Property<int>("GradoDeCompatibilidad")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreadorId");
+                    b.HasIndex("Familia1Id");
 
-                    b.HasIndex("IdFormula");
+                    b.HasIndex("Familia2Id");
 
-                    b.HasIndex("IdPedido");
-
-                    b.ToTable("CreacionesFinales");
+                    b.ToTable("CompatibilidadesFamilias");
                 });
 
             modelBuilder.Entity("backendAlquimia.Data.Entities.FamiliaOlfativa", b =>
@@ -276,7 +262,12 @@ namespace backendAlquimia.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("FamiliasOlfativas");
                 });
@@ -292,8 +283,14 @@ namespace backendAlquimia.Migrations
                     b.Property<int>("CombinacionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CombinacionId1")
-                        .HasColumnType("int");
+                    b.Property<double>("ConcentracionAgua")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ConcentracionAlcohol")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ConcentracionEsencia")
+                        .HasColumnType("float");
 
                     b.Property<int>("CreadorId")
                         .HasColumnType("int");
@@ -301,14 +298,12 @@ namespace backendAlquimia.Migrations
                     b.Property<int>("IntensidadId")
                         .HasColumnType("int");
 
-                    b.Property<int>("IntensidadId1")
+                    b.Property<int?>("IntensidadId1")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CombinacionId");
-
-                    b.HasIndex("CombinacionId1");
 
                     b.HasIndex("CreadorId");
 
@@ -337,22 +332,55 @@ namespace backendAlquimia.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("NotasCompatiblesIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("SectorId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("NotasIncompatiblesIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FamiliaOlfativaId");
 
+                    b.HasIndex("SectorId");
+
+                    b.HasIndex("UsuarioId");
+
                     b.ToTable("Notas");
+                });
+
+            modelBuilder.Entity("backendAlquimia.Data.Entities.Opinion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FechaPublicacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("IdProveedor")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdUsuario")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Opinion");
                 });
 
             modelBuilder.Entity("backendAlquimia.Data.Entities.Pedido", b =>
@@ -368,6 +396,26 @@ namespace backendAlquimia.Migrations
                     b.ToTable("Pedidos", (string)null);
                 });
 
+            modelBuilder.Entity("backendAlquimia.Data.Entities.PiramideOlfativa", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<TimeSpan>("Duracion")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PiramideOlfativa");
+                });
+
             modelBuilder.Entity("backendAlquimia.Data.Entities.Producto", b =>
                 {
                     b.Property<int>("Id")
@@ -376,12 +424,6 @@ namespace backendAlquimia.Migrations
                         .HasColumnName("Id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CreacionFinalId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CreadorId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -402,24 +444,22 @@ namespace backendAlquimia.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
-                    b.Property<int>("ProveedorId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
                     b.Property<int>("TipoProductoId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CreacionFinalId");
-
-                    b.HasIndex("CreadorId");
-
-                    b.HasIndex("ProveedorId");
+                    b.HasIndex("IdProveedor");
 
                     b.HasIndex("TipoProductoId");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Productos");
                 });
@@ -494,6 +534,9 @@ namespace backendAlquimia.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("EsProveedor")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -542,22 +585,6 @@ namespace backendAlquimia.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("Usuarios", (string)null);
-
-                    b.UseTptMappingStrategy();
-                });
-
-            modelBuilder.Entity("backendAlquimia.Data.Entities.Creador", b =>
-                {
-                    b.HasBaseType("backendAlquimia.Data.Entities.Usuario");
-
-                    b.ToTable("Creadores", (string)null);
-                });
-
-            modelBuilder.Entity("backendAlquimia.Data.Entities.Proveedor", b =>
-                {
-                    b.HasBaseType("backendAlquimia.Data.Entities.Usuario");
-
-                    b.ToTable("Proveedores", (string)null);
                 });
 
             modelBuilder.Entity("CombinacionNota", b =>
@@ -671,64 +698,55 @@ namespace backendAlquimia.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("backendAlquimia.Data.Entities.CreacionFinal", b =>
+            modelBuilder.Entity("backendAlquimia.Data.Entities.CompatibilidadesFamilias", b =>
                 {
-                    b.HasOne("backendAlquimia.Data.Entities.Creador", "Creador")
-                        .WithMany("HistorialDeCreaciones")
-                        .HasForeignKey("CreadorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backendAlquimia.Data.Entities.Formula", "Formula")
+                    b.HasOne("backendAlquimia.Data.Entities.FamiliaOlfativa", "Familia1")
                         .WithMany()
-                        .HasForeignKey("IdFormula")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("Familia1Id")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("backendAlquimia.Data.Entities.Pedido", "Pedido")
+                    b.HasOne("backendAlquimia.Data.Entities.FamiliaOlfativa", "Familia2")
                         .WithMany()
-                        .HasForeignKey("IdPedido")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("Familia2Id")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Creador");
+                    b.Navigation("Familia1");
 
-                    b.Navigation("Formula");
+                    b.Navigation("Familia2");
+                });
 
-                    b.Navigation("Pedido");
+            modelBuilder.Entity("backendAlquimia.Data.Entities.FamiliaOlfativa", b =>
+                {
+                    b.HasOne("backendAlquimia.Data.Entities.Usuario", null)
+                        .WithMany("FamiliasPreferidas")
+                        .HasForeignKey("UsuarioId");
                 });
 
             modelBuilder.Entity("backendAlquimia.Data.Entities.Formula", b =>
                 {
-                    b.HasOne("backendAlquimia.Data.Entities.Combinacion", null)
+                    b.HasOne("backendAlquimia.Data.Entities.Combinacion", "Combinacion")
                         .WithMany()
                         .HasForeignKey("CombinacionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("backendAlquimia.Data.Entities.Combinacion", "Combinacion")
-                        .WithMany()
-                        .HasForeignKey("CombinacionId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backendAlquimia.Data.Entities.Creador", "Creador")
+                    b.HasOne("backendAlquimia.Data.Entities.Usuario", "Creador")
                         .WithMany("Formulas")
                         .HasForeignKey("CreadorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Intensidad", null)
+                    b.HasOne("Intensidad", "Intensidad")
                         .WithMany()
                         .HasForeignKey("IntensidadId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Intensidad", "Intensidad")
-                        .WithMany()
-                        .HasForeignKey("IntensidadId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Intensidad", null)
+                        .WithMany("Formulas")
+                        .HasForeignKey("IntensidadId1");
 
                     b.Navigation("Combinacion");
 
@@ -740,28 +758,39 @@ namespace backendAlquimia.Migrations
             modelBuilder.Entity("backendAlquimia.Data.Entities.Nota", b =>
                 {
                     b.HasOne("backendAlquimia.Data.Entities.FamiliaOlfativa", "FamiliaOlfativa")
-                        .WithMany("Notas")
+                        .WithMany()
                         .HasForeignKey("FamiliaOlfativaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("backendAlquimia.Data.Entities.PiramideOlfativa", "Sector")
+                        .WithMany("Notas")
+                        .HasForeignKey("SectorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backendAlquimia.Data.Entities.Usuario", null)
+                        .WithMany("NotasPreferidas")
+                        .HasForeignKey("UsuarioId");
+
                     b.Navigation("FamiliaOlfativa");
+
+                    b.Navigation("Sector");
+                });
+
+            modelBuilder.Entity("backendAlquimia.Data.Entities.Opinion", b =>
+                {
+                    b.HasOne("backendAlquimia.Data.Entities.Usuario", null)
+                        .WithMany("Opiniones")
+                        .HasForeignKey("UsuarioId");
                 });
 
             modelBuilder.Entity("backendAlquimia.Data.Entities.Producto", b =>
                 {
-                    b.HasOne("backendAlquimia.Data.Entities.CreacionFinal", null)
+                    b.HasOne("backendAlquimia.Data.Entities.Usuario", "Proveedor")
                         .WithMany("Productos")
-                        .HasForeignKey("CreacionFinalId");
-
-                    b.HasOne("backendAlquimia.Data.Entities.Creador", null)
-                        .WithMany("CarritoDeCompras")
-                        .HasForeignKey("CreadorId");
-
-                    b.HasOne("backendAlquimia.Data.Entities.Proveedor", "Proveedor")
-                        .WithMany("Productos")
-                        .HasForeignKey("ProveedorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("IdProveedor")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("backendAlquimia.Data.Entities.TipoProducto", "TipoProducto")
@@ -770,50 +799,37 @@ namespace backendAlquimia.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("backendAlquimia.Data.Entities.Usuario", null)
+                        .WithMany("CarritoDeCompras")
+                        .HasForeignKey("UsuarioId");
+
                     b.Navigation("Proveedor");
 
                     b.Navigation("TipoProducto");
                 });
 
-            modelBuilder.Entity("backendAlquimia.Data.Entities.Creador", b =>
+            modelBuilder.Entity("Intensidad", b =>
                 {
-                    b.HasOne("backendAlquimia.Data.Entities.Usuario", null)
-                        .WithOne()
-                        .HasForeignKey("backendAlquimia.Data.Entities.Creador", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Formulas");
                 });
 
-            modelBuilder.Entity("backendAlquimia.Data.Entities.Proveedor", b =>
-                {
-                    b.HasOne("backendAlquimia.Data.Entities.Usuario", null)
-                        .WithOne()
-                        .HasForeignKey("backendAlquimia.Data.Entities.Proveedor", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("backendAlquimia.Data.Entities.CreacionFinal", b =>
-                {
-                    b.Navigation("Productos");
-                });
-
-            modelBuilder.Entity("backendAlquimia.Data.Entities.FamiliaOlfativa", b =>
+            modelBuilder.Entity("backendAlquimia.Data.Entities.PiramideOlfativa", b =>
                 {
                     b.Navigation("Notas");
                 });
 
-            modelBuilder.Entity("backendAlquimia.Data.Entities.Creador", b =>
+            modelBuilder.Entity("backendAlquimia.Data.Entities.Usuario", b =>
                 {
                     b.Navigation("CarritoDeCompras");
 
+                    b.Navigation("FamiliasPreferidas");
+
                     b.Navigation("Formulas");
 
-                    b.Navigation("HistorialDeCreaciones");
-                });
+                    b.Navigation("NotasPreferidas");
 
-            modelBuilder.Entity("backendAlquimia.Data.Entities.Proveedor", b =>
-                {
+                    b.Navigation("Opiniones");
+
                     b.Navigation("Productos");
                 });
 #pragma warning restore 612, 618

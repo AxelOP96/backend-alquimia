@@ -10,30 +10,32 @@ namespace backendAlquimia.Controllers
     public class CreacionController : ControllerBase
     {
         private readonly INotaService _notaService;
+        private readonly IFormulaService _formulaService;
 
-        public CreacionController(INotaService notaService)
+        public CreacionController(INotaService notaService, IFormulaService formulaService)
         {
             _notaService = notaService;
+            _formulaService = formulaService;
         }
         // tiene que ser la primera solicitud.
         [HttpGet("notasDeFondo")]
         public async Task<ActionResult<IEnumerable<Nota>>> GetNotasFondo()
         {
-            var notas = await _notaService.ObtenerNotasDeFondoAgrupadasPorFamiliaAsync();
+            List<NotasPorFamiliaDTO> notas = await _notaService.ObtenerNotasDeFondoAgrupadasPorFamiliaAsync();
             return Ok(notas);
         }
 
         [HttpGet("notasDeCorazon")]
         public async Task<ActionResult<IEnumerable<Nota>>> GetNotasCorazon()
         {
-            var notas = await _notaService.ObtenerNotasDeCorazonAgrupadasPorFamiliaAsync();
+            List<NotasPorFamiliaDTO> notas = await _notaService.ObtenerNotasDeCorazonAgrupadasPorFamiliaAsync();
             return Ok(notas);
         }
 
         [HttpGet("notasDeSalida")]
         public async Task<ActionResult<IEnumerable<Nota>>> GetNotasSalida()
         {
-            var notas = await _notaService.ObtenerNotasDeSalidaAgrupadasPorFamiliaAsync();
+            List<NotasPorFamiliaDTO> notas = await _notaService.ObtenerNotasDeSalidaAgrupadasPorFamiliaAsync();
             return Ok(notas);
         }
 
@@ -51,12 +53,33 @@ namespace backendAlquimia.Controllers
             return Ok(compatibles);
         }
 
-        //[HttpPost("confirmar")]
-        //public async Task<IActionResult> ConfirmarSeleccionDeNotas([FromBody] NotasConfirmadas dto)
-        //{
-        //    dto.CreadorId;
-        //    dto.ListaDeIdsSeleccionadas;
-        //}
+        [HttpGet("intensidad")]
+        public async Task<IActionResult> GetIntensidad()
+        {
+            List<IntensidadDTO> intensidad = await _formulaService.ObtenerIntensidadAsync();
+            return Ok(intensidad);
+        }
+
+        [HttpPost("formular")]
+        public async Task<IActionResult> FinalizarCreacion([FromBody] POSTFormulaDTO dto)
+        {
+            GETFormulaDTO formulaGuardada = await _formulaService.guardar(dto);
+            return CreatedAtAction(
+                nameof(ObtenerFormulaPorId),
+                new { id = formulaGuardada.Id },
+                formulaGuardada
+                );
+        }
+
+        [HttpGet("formulas/{id}")]
+        public async Task<IActionResult> ObtenerFormulaPorId(int id)
+        {
+            var formula = await _formulaService.ObtenerPorId(id);
+            if (formula == null) return NotFound();
+            return Ok(formula);
+        }
+
+
 
         // user envia nota
         // la recibo
@@ -64,6 +87,8 @@ namespace backendAlquimia.Controllers
         // actualizo y le devuelvo las compatibles
         // asi hasta llegar a 4 o hasta confirmar la seleccion
 
+        // necesito que el front me haga post cada vez que el user arrastra la nota al frasco. no se como, cookie? session? local storage? 
         // necesito que el front me haga post cada vez que el user arrastra la nota al frasco. no se como, cookie? session? local storage?. UNa vez que el usuario ya selecciono todas las notas, hace click en CONFIRMAR Y AHI SE HACE esa solicitud /creacion/confirmar.
+
     }
 }
