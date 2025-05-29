@@ -37,11 +37,7 @@ public partial class AlquimiaDbContext : DbContext
 
     public virtual DbSet<Intensity> Intensities { get; set; }
 
-    public virtual DbSet<NotasIncompatible> NotasIncompatibles { get; set; }
-
     public virtual DbSet<Note> Notes { get; set; }
-
-    public virtual DbSet<NotesPyramidFamily> NotesPyramidFamilies { get; set; }
 
     public virtual DbSet<OlfactoryFamily> OlfactoryFamilies { get; set; }
 
@@ -56,6 +52,8 @@ public partial class AlquimiaDbContext : DbContext
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductType> ProductTypes { get; set; }
+
+    public virtual DbSet<ProductVariant> ProductVariants { get; set; }
 
     public virtual DbSet<Question> Questions { get; set; }
 
@@ -186,11 +184,6 @@ public partial class AlquimiaDbContext : DbContext
             entity.Property(e => e.Nombre).HasDefaultValue("");
         });
 
-        modelBuilder.Entity<NotasIncompatible>(entity =>
-        {
-            entity.ToView("NotasIncompatibles");
-        });
-
         modelBuilder.Entity<Note>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Notas");
@@ -202,11 +195,6 @@ public partial class AlquimiaDbContext : DbContext
             entity.HasOne(d => d.PiramideOlfativa).WithMany(p => p.Notes)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_notasPiramideOlfativa");
-        });
-
-        modelBuilder.Entity<NotesPyramidFamily>(entity =>
-        {
-            entity.ToView("NotesPyramidFamily");
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -232,6 +220,15 @@ public partial class AlquimiaDbContext : DbContext
                 .HasConstraintName("FK_ProductTypes");
         });
 
+        modelBuilder.Entity<ProductVariant>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductVariants)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductVa__Produ__793DFFAF");
+        });
+
         modelBuilder.Entity<Question>(entity =>
         {
             entity.HasOne(d => d.IdOpcionesNavigation).WithMany(p => p.Questions).HasConstraintName("FK_QuestionsOptions");
@@ -240,6 +237,11 @@ public partial class AlquimiaDbContext : DbContext
         modelBuilder.Entity<Quiz>(entity =>
         {
             entity.HasOne(d => d.IdPreguntaNavigation).WithMany(p => p.Quizzes).HasConstraintName("FK_quizPreguntas");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_AspNetRoles");
         });
 
         modelBuilder.Entity<Subscription>(entity =>

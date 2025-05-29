@@ -10,39 +10,48 @@ namespace backendAlquimia.Controllers
     [ApiController]
     public class CreatorController : ControllerBase
     {
-        private readonly INoteService _notaService;
+        private readonly INoteService _noteService;
+        private readonly IProductService _productService;
 
-        public CreatorController(INoteService notaService)
+        public CreatorController(INoteService notaService, IProductService productService)
         {
-            _notaService = notaService;
+            _noteService = notaService;
+            _productService = productService;
         }
 
         [HttpGet("base-notes")]
         public async Task<ActionResult<IEnumerable<Note>>> GetBaseNotes()
         {
-            List<NotesGroupedByFamilyDTO> notes = await _notaService.GetBaseNotesGroupedByFamilyAsync();
+            List<NotesGroupedByFamilyDTO> notes = await _noteService.GetBaseNotesGroupedByFamilyAsync();
             return Ok(notes);
         }
 
         [HttpGet("heart-notes")]
         public async Task<ActionResult<IEnumerable<Note>>> GetHeartNotes()
         {
-            List<NotesGroupedByFamilyDTO> notas = await _notaService.GetHeartNotesGroupedByFamilyAsync();
+            List<NotesGroupedByFamilyDTO> notas = await _noteService.GetHeartNotesGroupedByFamilyAsync();
             return Ok(notas);
         }
 
         [HttpGet("top-notes")]
         public async Task<ActionResult<IEnumerable<Note>>> GetTopNotes()
         {
-            List<NotesGroupedByFamilyDTO> notas = await _notaService.GetTopNotesGroupedByFamilyAsync();
+            List<NotesGroupedByFamilyDTO> notas = await _noteService.GetTopNotesGroupedByFamilyAsync();
             return Ok(notas);
         }
 
         [HttpPost("compatibilities")]
         public async Task<IActionResult> PostCompatibleNotes([FromBody] SelectedNotesDTO dto)
         {
-            var compatibles = await _notaService.GetCompatibleNotesAsync(dto.ListaDeIdsSeleccionadas, dto.Sector);
+            var compatibles = await _noteService.GetCompatibleNotesAsync(dto.ListaDeIdsSeleccionadas, dto.Sector);
             return Ok(compatibles);
+        }
+
+        [HttpGet("price-range")]
+        public async Task<IActionResult> GetPriceRange([FromQuery] int noteId)
+        {
+            var PriceRange = await _productService.GetPriceRangeFromProductAsync(noteId);
+            return Ok(PriceRange);
         }
     }
 }

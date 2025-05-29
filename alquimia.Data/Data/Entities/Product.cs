@@ -22,11 +22,6 @@ public partial class Product
     [StringLength(50)]
     public string Description { get; set; } = null!;
 
-    [Column(TypeName = "decimal(10, 2)")]
-    public decimal Price { get; set; }
-
-    public int Stock { get; set; }
-
     public int? IdProveedor { get; set; }
 
     public int? UsuarioId { get; set; }
@@ -43,6 +38,9 @@ public partial class Product
 
     [InverseProperty("Productos")]
     public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+
+    [InverseProperty("Product")]
+    public virtual ICollection<ProductVariant> ProductVariants { get; set; } = new List<ProductVariant>();
 
     [ForeignKey("TipoProductoId")]
     [InverseProperty("Products")]

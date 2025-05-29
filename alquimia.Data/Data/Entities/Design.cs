@@ -12,8 +12,6 @@ public partial class Design
     [Key]
     public int Id { get; set; }
 
-    public int? TipoProductoId { get; set; }
-
     public int? IdProducto { get; set; }
 
     [StringLength(50)]
