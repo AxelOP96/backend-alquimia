@@ -258,8 +258,19 @@ namespace alquimia.Api.Controllers
                 ? Guid.NewGuid().ToString("N").Substring(0, 8)
                 : nombre;
         }
-    }
+    [HttpGet("perfil")]
+        [Authorize]
+        public async Task<IActionResult> ObtenerPerfil()
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            var roles = await _userManager.GetRolesAsync(user);
+            return Ok(new
+            {
+                email = user.Email,
+                rol = roles.FirstOrDefault()
+            });
+        }
 
-    
-
     }
+}
