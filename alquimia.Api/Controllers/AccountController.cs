@@ -1,11 +1,13 @@
-﻿using System.Security.Claims;
-using alquimia.Services.Models;
+﻿using alquimia.Data.Entities;
 using alquimia.Services.Interfaces;
+using alquimia.Services.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using alquimia.Data.Entities;
+using System.Security.Claims;
 //using Humanizer;
 using User = alquimia.Data.Entities.User;
+
 
 namespace alquimia.Api.Controllers
 {
@@ -258,8 +260,21 @@ namespace alquimia.Api.Controllers
                 ? Guid.NewGuid().ToString("N").Substring(0, 8)
                 : nombre;
         }
-    }
 
-    
+        [Authorize]
+        [HttpGet("perfil")]
+        public async Task<IActionResult> ObtenerPerfil()
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            var roles = await _userManager.GetRolesAsync(user);
+            return Ok(new
+            {
+                email = user.Email,
+                rol = roles.FirstOrDefault()
+            });
+        }
+
 
     }
+}
