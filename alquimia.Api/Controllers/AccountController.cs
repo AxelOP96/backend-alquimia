@@ -8,6 +8,7 @@ using System.Security.Claims;
 //using Humanizer;
 using User = alquimia.Data.Entities.User;
 
+
 namespace alquimia.Api.Controllers
 {
     [ApiController]
@@ -259,10 +260,9 @@ namespace alquimia.Api.Controllers
                 ? Guid.NewGuid().ToString("N").Substring(0, 8)
                 : nombre;
         }
-   
 
-    [HttpGet("perfil")]
         [Authorize]
+        [HttpGet("perfil")]
         public async Task<IActionResult> ObtenerPerfil()
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -274,6 +274,7 @@ namespace alquimia.Api.Controllers
                 rol = roles.FirstOrDefault()
             });
         }
+
 
     }
 }
