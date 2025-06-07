@@ -260,6 +260,24 @@ namespace alquimia.Api.Controllers
         }
     }
 
+
+
+
+  [HttpGet("perfil")]
+  [Authorize]
+  public async Task<IActionResult> ObtenerPerfil()
+  {
+      var userEmail = User.FindFirstValue(ClaimTypes.Email);
+      var user = await _userManager.FindByEmailAsync(userEmail);
+      var roles = await _userManager.GetRolesAsync(user);
+      return Ok(new
+      {
+          email = user.Email,
+          rol = roles.FirstOrDefault()
+      });
+  }
+
+
     
 
     }
