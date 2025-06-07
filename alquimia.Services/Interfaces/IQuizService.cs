@@ -6,6 +6,6 @@ namespace alquimia.Services.Interfaces
     {
         Task<List<QuestionDTO>> GetQuestionsAsync();
         Task SaveAnswersAsync(List<AnswerDTO> respuestas);
-        Task<object?> GetResultAsync(List<AnswerDTO> respuestas);
+        Task<QuizResponseDTO?> GetResultAsync(List<AnswerDTO> answers);
     }
 }
