@@ -204,5 +204,40 @@ namespace alquimia.Services
             formula.Title = title;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<GETFormulaDTO>> GetFormulasByCreatorId(int id)
+        {
+            var formulas = await _context.Formulas
+                        .Where(f => f.CreadorId == id)
+                        .Include(f => f.Intensidad)
+                        .IncludeFormulaNotesWithDetails()
+                        .ToListAsync();
+
+
+            if (formulas == null || formulas.Count() == 0)
+            {
+                throw new NullReferenceException();
+            }
+
+            return formulas.Select(found => new GETFormulaDTO
+            {
+                Id = found.Id,
+                Intensity = new IntensityDTO
+                {
+                    Id = found.IntensidadId,
+                    Name = found.Intensidad.Nombre,
+                    Description = found.Intensidad.Description,
+                    Category = found.Intensidad.Category
+                },
+                IdCreador = found.CreadorId,
+                ConcentracionAlcohol = found.ConcentracionAlcohol,
+                ConcentracionAgua = found.ConcentracionAgua,
+                ConcentracionEsencia = found.ConcentracionEsencia,
+                NotasSalidaIds = MapFormulaNoteToDTO(found.FormulaSalidaNavigation),
+                NotasCorazonIds = MapFormulaNoteToDTO(found.FormulaCorazonNavigation),
+                NotasFondoIds = MapFormulaNoteToDTO(found.FormulaFondoNavigation),
+                Title = found.Title
+            }).ToList();
+        }
     }
 }
