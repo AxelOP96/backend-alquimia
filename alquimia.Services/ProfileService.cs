@@ -111,5 +111,10 @@ namespace alquimia.Services
 
             return dto;
         }
+
+        public Task<UserProfileDto?> UpdateProfileAsync(UpdateUserProfileDto dto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using alquimia.Services.Interfaces;
+﻿using alquimia.Services;
+using alquimia.Services.Interfaces;
 using alquimia.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,9 +22,9 @@ namespace alquimia.Api.Controllers
         private readonly IEmailService _emailService;
         private readonly IConfiguration _config;
         private readonly IEmailTemplateService _emailTemplate;
-
+        private readonly IProfileService _profileService;
         public AccountController(UserManager<User> userManager, SignInManager<User> signInManager,
-            ILogger<AccountController> logger, IJwtService jwtService, IEmailService emailService, IConfiguration config, IEmailTemplateService emailTemplate)
+            ILogger<AccountController> logger, IJwtService jwtService, IEmailService emailService, IProfileService profileService, IConfiguration config, IEmailTemplateService emailTemplate)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -32,6 +33,7 @@ namespace alquimia.Api.Controllers
             _emailService = emailService;
             _config = config;
             _emailTemplate = emailTemplate;
+            _profileService = profileService;
         }
 
         [HttpPost("register")]
@@ -286,6 +288,22 @@ namespace alquimia.Api.Controllers
 
             return Ok("Contraseña restablecida correctamente.");
         }
+
+        [Authorize]
+        [HttpPut("update-profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserProfileDto dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var updatedUser = await _profileService.UpdateMyData(dto);
+            if (updatedUser == null)
+                return NotFound(new { mensaje = "Usuario no encontrado." });
+
+            return Ok(updatedUser);
+        }
+
         private string GenerateUserNameSeguro(string email)
         {
             if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
