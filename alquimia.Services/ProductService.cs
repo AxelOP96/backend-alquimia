@@ -406,7 +406,6 @@ namespace alquimia.Services
                 }).ToList()
             }).ToList();
         }
-
         public async Task<List<ProductDTO>> GetAllAsync()
         {
             var productos = await _context.Products
@@ -430,6 +429,7 @@ namespace alquimia.Services
                 {
                     Id = p.IdProveedorNavigation.Id,
                     Nombre = p.IdProveedorNavigation.Name,
+                    Email = p.IdProveedorNavigation.Email
                 },
                 Variants = p.ProductVariants
                     .Where(v => v.Price > 0)
@@ -446,7 +446,6 @@ namespace alquimia.Services
                         IsParabenFree = v.IsParabenFree
                     }).ToList(),
 
-                // ✅ Primer precio válido PARA QUE NO ROMPA FRONT ESTO DE LOS VARIANTS
                 Price = p.ProductVariants
                     .Where(v => v.Price > 0)
                     .OrderBy(v => v.Price)
@@ -454,19 +453,19 @@ namespace alquimia.Services
                     .FirstOrDefault(),
 
                 Volume = p.ProductVariants
-                .Where(v => v.Price > 0)
-                .OrderBy(v => v.Price)
-                .Select(v => (int?)v.Volume)
-                .FirstOrDefault(),
+                    .Where(v => v.Price > 0)
+                    .OrderBy(v => v.Price)
+                    .Select(v => (int?)v.Volume)
+                    .FirstOrDefault(),
 
                 Unit = p.ProductVariants
-                .Where(v => v.Price > 0)
-                .OrderBy(v => v.Price)
-                .Select(v => v.Unit)
-                .FirstOrDefault()
-
+                    .Where(v => v.Price > 0)
+                    .OrderBy(v => v.Price)
+                    .Select(v => v.Unit)
+                    .FirstOrDefault()
             }).ToList();
         }
+
 
         public async Task<List<ProductDTO>> GetAllAlcoholsAsync()
         {
