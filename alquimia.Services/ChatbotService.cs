@@ -22,15 +22,9 @@ namespace alquimia.Services
             var path = Path.Combine(env.ContentRootPath, "Data", "chatFlow.json");
             if (File.Exists(path))
             {
-                Console.WriteLine("existe");
-                Console.WriteLine("Ruta del JSON: " + path);
-                Console.WriteLine("Existe el archivo: " + File.Exists(path));
                 var json = File.ReadAllText(path);
                 var frontendUrl = _config["AppSettings:FrontendBaseUrl"];
                 json = json.Replace("{{FrontendBaseUrl}}", frontendUrl);
-                Console.WriteLine("Mensaje con URL reemplazada:");
-                Console.WriteLine(json);
-
                 try
                 {
                     var options = new JsonSerializerOptions
@@ -55,7 +49,6 @@ namespace alquimia.Services
 
                     if (invalidIds.Any())
                     {
-                        Console.WriteLine("🔴 IDs inválidos encontrados: " + string.Join(", ", invalidIds));
                         throw new Exception("IDs inválidos (vacíos o nulos) detectados.");
                     }
 
@@ -67,7 +60,6 @@ namespace alquimia.Services
 
                     if (duplicatedIds.Any())
                     {
-                        Console.WriteLine("🔴 IDs duplicados en chatFlow.json: " + string.Join(", ", duplicatedIds));
                         throw new Exception("IDs duplicados detectados: " + string.Join(", ", duplicatedIds));
                     }
 
@@ -75,13 +67,11 @@ namespace alquimia.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("❌ Error deserializando chatFlow.json: " + ex.Message);
                     _staticNodes = new();
                 }
             }
             else
             {
-                Console.WriteLine("no existe");
                 _staticNodes = new();
             }
         }
@@ -94,7 +84,7 @@ namespace alquimia.Services
             return Task.FromResult(node);
         }
 
-        public async Task<ChatNode> GetDynamicNodeAsync(string id)
+        public async Task<ChatNode> GetDynamicNodeByIdAsync(string id)
         {
             var handler = _handlers.FirstOrDefault(h => h.CanHandle(id));
             if (handler != null)
@@ -113,7 +103,6 @@ namespace alquimia.Services
 
             if (duplicatedIds.Any())
             {
-                Console.WriteLine("🔴 IDs duplicados encontrados: " + string.Join(", ", duplicatedIds));
                 throw new Exception("IDs duplicados en chatFlow.json");
             }
 
@@ -124,7 +113,6 @@ namespace alquimia.Services
 
             if (emptyIds.Any())
             {
-                Console.WriteLine("🔴 Nodos con ID vacío o nulo: " + string.Join(", ", emptyIds));
                 throw new Exception("Nodos con ID inválido en chatFlow.json");
             }
 
@@ -132,19 +120,6 @@ namespace alquimia.Services
                 .SelectMany(n => n.Options ?? new List<ChatOption>())
                 .Where(opt => string.IsNullOrWhiteSpace(opt.Label) || string.IsNullOrWhiteSpace(opt.NextNodeId))
                 .ToList();
-
-            if (invalidOptions.Any())
-            {
-                Console.WriteLine("⚠️ Opciones con campos vacíos encontradas:");
-                foreach (var opt in invalidOptions)
-                {
-                    Console.WriteLine($"Label: '{opt.Label}' | NextNodeId: '{opt.NextNodeId}'");
-                }
-            }
-
-            Console.WriteLine("✅ Validación completada sin errores graves.");
         }
-
     }
-
 }

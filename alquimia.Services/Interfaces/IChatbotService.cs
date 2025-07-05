@@ -5,7 +5,7 @@ namespace alquimia.Services.Interfaces
     public interface IChatbotService
     {
         Task<ChatNode?> GetNodeByIdAsync(string id);
-        Task<ChatNode?> GetDynamicNodeAsync(string id);
+        Task<ChatNode?> GetDynamicNodeByIdAsync(string id);
     }
 
 }

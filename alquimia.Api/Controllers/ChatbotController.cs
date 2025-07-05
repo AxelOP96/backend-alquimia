@@ -23,7 +23,7 @@ namespace alquimia.Api.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return Ok(await _chatbotService.GetDynamicNodeAsync(id));
+                return Ok(await _chatbotService.GetDynamicNodeByIdAsync(id));
             }
         }
 
