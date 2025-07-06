@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using alquimia.Services.Interfaces;
+﻿using alquimia.Services.Interfaces;
 using alquimia.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 namespace alquimia.Api.Controllers
 {
     //[Authorize]
@@ -117,5 +117,7 @@ namespace alquimia.Api.Controllers
             await _productService.RemoveFromWishlistAsync(userId, productId);
             return Ok(new { message = "Producto eliminado de tu biblioteca." });
         }
+
+
     }
 }

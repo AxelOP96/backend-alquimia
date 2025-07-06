@@ -1,0 +1,43 @@
+name: Keep Alive
+
+on:
+  workflow_dispatch:           # 👈 Ejecutar manualmente desde GitHub
+  schedule:
+    - cron: '*/5 * * * *'      # 🕐 Cada 5 minutos
+
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Azure backend con diagnóstico
+        run: |
+          URL="https://alquimia-deploy-back-a8dqhub8ekdff8dk.brazilsouth-01.azurewebsites.net/health"
+          echo "🔄 Haciendo ping a $URL..."
+          
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "$URL")
+          echo "📡 Código de respuesta: $RESPONSE"
+
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "✅ Backend OK"
+          else
+            echo "❌ Algo falló..."
+            case $RESPONSE in
+              000)
+                echo "::error ::No hubo respuesta (timeout, dominio incorrecto o backend muy dormido)"
+                ;;
+              404)
+                echo "::error ::404: Ruta no encontrada (/health no existe o mal configurado)"
+                ;;
+              503)
+                echo "::error ::503: Servicio no disponible (posiblemente en sleep mode o reiniciando)"
+                ;;
+              500)
+                echo "::error ::500: Error interno en el servidor"
+                ;;
+              *)
+                echo "::error ::Falla inesperada. Código HTTP: $RESPONSE"
+                ;;
+            esac
+            exit 1
+          fi

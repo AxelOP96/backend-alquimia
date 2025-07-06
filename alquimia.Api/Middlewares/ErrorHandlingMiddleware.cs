@@ -15,7 +15,6 @@ namespace alquimia.Api.Middlewares
             _logger = logger;
         }
 
-
         public async Task Invoke(HttpContext context)
         {
             try
@@ -56,6 +55,13 @@ namespace alquimia.Api.Middlewares
                     status = (int)HttpStatusCode.NotFound; //404
                     error = string.IsNullOrWhiteSpace(exception.Message)
                         ? "El recurso solicitado no fue encontrado."
+                        : exception.Message;
+                    break;
+
+                case InvalidOperationException:
+                    status = (int)HttpStatusCode.InternalServerError; //500
+                    error = string.IsNullOrWhiteSpace(exception.Message)
+                        ? "Ocurrió un error inesperado."
                         : exception.Message;
                     break;
 
