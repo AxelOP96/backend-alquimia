@@ -98,17 +98,23 @@ namespace alquimia.Api.Controllers
                 return Unauthorized(new { mensaje = "Usuario no encontrado." });
             }
 
-            if (string.IsNullOrWhiteSpace(usuario.UserName) || usuario.Id == 0)
-                return StatusCode(500, new { mensaje = "El usuario tiene datos incompletos (UserName o Id)." });
+            // 🚨 Validar si es proveedor en espera
+            if (usuario.EsProveedor)
+            {
+                return Unauthorized(new { mensaje = "Tu cuenta de proveedor aún no fue aprobada. Por favor espera la confirmación." });
+            }
 
             var result = await _signInManager.CheckPasswordSignInAsync(usuario, dto.Password, lockoutOnFailure: false);
 
             if (!result.Succeeded)
                 return Unauthorized(new { mensaje = "Credenciales inválidas." });
+
             var roles = await _userManager.GetRolesAsync(usuario);
             var token = _jwtService.GenerateToken(usuario, roles);
+
             await _signInManager.SignInAsync(usuario, isPersistent: false);
             _logger.LogInformation("Login exitoso para {Email}", dto.Email);
+
             return Ok(new { mensaje = "Login exitoso ✅", token });
         }
 
@@ -160,6 +166,7 @@ namespace alquimia.Api.Controllers
             _logger.LogInformation("Google login info recibida para: {Email}", info.Principal.FindFirstValue(ClaimTypes.Email));
             return Redirect("http://localhost:3000/Login/RedirectGoogle");
         }
+
         [HttpPost("register-provider")]
         public async Task<IActionResult> RegisterProvider([FromBody] RegisterProviderDTO dto)
         {
@@ -176,13 +183,12 @@ namespace alquimia.Api.Controllers
             {
                 UserName = GenerateUserNameSeguro(dto.Email),
                 Email = dto.Email,
-                Name = dto.Name?.Trim(),
+                Name = dto.Name?.Trim() ?? string.Empty,
                 EsProveedor = true,
                 Empresa = dto.Empresa,
                 Cuil = dto.Cuil,
                 Rubro = dto.Rubro,
                 OtroProducto = string.Join(",", dto.OtroProducto),
-                //TarjetaNombre = dto.TarjetaNombre,
                 TarjetaNumero = dto.TarjetaNumero,
                 TarjetaVencimiento = dto.TarjetaVencimiento,
                 TarjetaCVC = dto.TarjetaCVC
@@ -210,15 +216,14 @@ namespace alquimia.Api.Controllers
                 }
             }
 
-            var roles = await _userManager.GetRolesAsync(usuarioPersistido);
-            var token = _jwtService.GenerateToken(usuarioPersistido, roles);
-
-            await _signInManager.SignInAsync(usuarioPersistido, isPersistent: false);
+            // NO iniciar sesión ni devolver token
             _logger.LogInformation("Proveedor registrado exitosamente como Creador: {Email}", dto.Email);
             var mensajeBienvenida = _emailTemplate.GetWelcomeEmail(dto.Name);
             await _emailService.SendEmailAsync(dto.Email, "Bienvenido a Alquimia - Cuenta en revisión", mensajeBienvenida);
-            return Ok(new { mensaje = "Proveedor registrado correctamente como creador en espera de aprobación.", token });
+
+            return Ok(new { mensaje = "Proveedor registrado correctamente. Tu cuenta está en revisión y será activada por un administrador." });
         }
+
 
         [HttpGet("auth/status")]
         public IActionResult State()
@@ -308,6 +313,17 @@ namespace alquimia.Api.Controllers
 
             return Ok(new { token });
         }
+
+        [HttpPost("email-exists")]
+        public async Task<IActionResult> EmailExists([FromBody] EmailCheckDTO model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Email))
+                return BadRequest(new { mensaje = "El email es obligatorio." });
+
+            var usuario = await _userManager.FindByEmailAsync(model.Email);
+            return Ok(new { exists = usuario != null });
+        }
+
 
     }
 }
