@@ -537,6 +537,22 @@ namespace alquimia.Services
 
             return variant;
         }
+
+        public async Task DecreaseVariantStockAsync(int variantId, int quantity)
+        {
+            if (quantity < 0)
+                throw new ArgumentException("Cantidad inválida", nameof(quantity));
+
+            var variant = await _context.ProductVariants.FindAsync(variantId);
+            if (variant == null)
+                throw new KeyNotFoundException("Variante no encontrada");
+
+            if (variant.Stock < quantity)
+                throw new InvalidOperationException("Stock insuficiente");
+
+            variant.Stock -= quantity;
+            await _context.SaveChangesAsync();
+        }
         public async Task<List<ProductDTO>> GetAllBottlesAsync()
         {
             var productos = await _context.Products

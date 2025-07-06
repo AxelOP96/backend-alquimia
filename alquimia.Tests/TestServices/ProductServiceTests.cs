@@ -245,5 +245,25 @@ namespace alquimia.Tests.TestServices
             Assert.Null(_context.ProductVariants.Find(variant.Id));
         }
 
+        [Fact]
+        public async Task DecreaseVariantStockAsync_ShouldDecreaseStock_WhenEnoughStock()
+        {
+            var variant = new ProductVariant
+            {
+                Volume = 50,
+                Unit = "ml",
+                Price = 30m,
+                Stock = 5
+            };
+
+            _context.ProductVariants.Add(variant);
+            await _context.SaveChangesAsync();
+
+            await _productService.DecreaseVariantStockAsync(variant.Id, 3);
+
+            var updated = await _context.ProductVariants.FindAsync(variant.Id);
+            Assert.Equal(2, updated.Stock);
+        }
+
     }
 }

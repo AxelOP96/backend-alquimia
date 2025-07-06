@@ -1,13 +1,12 @@
-﻿using alquimia.Services.Interfaces;
+using alquimia.Services.Interfaces;
 using alquimia.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
-//using Humanizer;
 using User = alquimia.Data.Entities.User;
-
+//
 namespace alquimia.Api.Controllers
 {
     [ApiController]
@@ -105,6 +104,7 @@ namespace alquimia.Api.Controllers
 
             if (!result.Succeeded)
                 return Unauthorized(new { mensaje = "Credenciales inválidas." });
+
             var roles = await _userManager.GetRolesAsync(usuario);
             var token = _jwtService.GenerateToken(usuario, roles);
             await _signInManager.SignInAsync(usuario, isPersistent: false);
@@ -113,30 +113,61 @@ namespace alquimia.Api.Controllers
         }
 
         [HttpGet("login-google")]
-        public IActionResult LoginWithGoogle()
+        public IActionResult LoginWithGoogle([FromQuery] bool debug = false)
         {
-            var redirectUrl = Url.Action("GoogleLoginCallback", "Cuenta");
+            var redirectUrl = Url.Action("GoogleLoginCallback", "Account", null, Request.Scheme);
+            _logger.LogInformation("🔁 redirect_uri usado para Google OAuth: {RedirectUrl}", redirectUrl);
             var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
+            if (debug)
+            {
+                return Ok(new
+                {
+                    redirectUrl,
+                    callback = redirectUrl
+                });
+            }
             return Challenge(properties, "Google");
         }
 
         [HttpGet("signin-google")]
-        public async Task<IActionResult> GoogleLoginCallback()
+        public async Task<IActionResult> GoogleLoginCallback([FromQuery] bool debug = false)
         {
             _logger.LogInformation("Callback de login con Google recibido");
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
                 _logger.LogError("Fallo al obtener la información de login externo.");
+                if (debug)
+                    return BadRequest(new { mensaje = "No se pudo obtener la información externa." });
                 return Redirect("http://localhost:3000/Login?error=callback");
             }
 
-
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
+            var frontendRedirect = _config["OAuth:Url"];
+            if (string.IsNullOrWhiteSpace(frontendRedirect) ||
+                frontendRedirect.Contains("/account/signin-google", StringComparison.OrdinalIgnoreCase))
+            {
+                var baseUrl = _config["AppSettings:FrontendBaseUrl"] ?? "https://frontend-alquimia.vercel.app/";
+                frontendRedirect = baseUrl.TrimEnd('/') + "/Login/RedirectGoogle";
+            }
 
             if (result.Succeeded)
             {
-                return Redirect("http://localhost:3000/login/redirectgoogle");
+                var existingUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+                var rolesExisting = await _userManager.GetRolesAsync(existingUser);
+                var tokenExisting = _jwtService.GenerateToken(existingUser, rolesExisting);
+                await _signInManager.SignInAsync(existingUser, isPersistent: false);
+                if (debug)
+                {
+                    return Ok(new
+                    {
+                        token = tokenExisting,
+                        existingUser = true,
+                        email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        name = info.Principal.FindFirstValue(ClaimTypes.Name)
+                    });
+                }
+                return Redirect(frontendRedirect);
             }
 
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
@@ -153,13 +184,47 @@ namespace alquimia.Api.Controllers
             var createResult = await _userManager.CreateAsync(newUser);
             if (!createResult.Succeeded)
                 return Redirect("http://localhost:3000/Login?error=creation");
+
+            await _userManager.AddLoginAsync(newUser, info);
             var roles = await _userManager.GetRolesAsync(newUser);
             var token = _jwtService.GenerateToken(newUser, roles);
-            await _userManager.AddLoginAsync(newUser, info);
             await _signInManager.SignInAsync(newUser, isPersistent: false);
-            _logger.LogInformation("Google login info recibida para: {Email}", info.Principal.FindFirstValue(ClaimTypes.Email));
-            return Redirect("http://localhost:3000/Login/RedirectGoogle");
+            _logger.LogInformation("Google login info recibida para: {Email}", email);
+
+            if (debug)
+            {
+                return Ok(new
+                {
+                    token,
+                    newUser = true,
+                    email,
+                    name
+                });
+            }
+            return Redirect(frontendRedirect);
         }
+
+        [HttpGet("debug/google-config")]
+        public IActionResult GoogleConfigDebug()
+        {
+            var loginEndpoint = Url.Action("LoginWithGoogle", "Account", null, Request.Scheme);
+            var callback = Url.Action("GoogleLoginCallback", "Account", null, Request.Scheme);
+            var frontendRedirect = _config["OAuth:Url"];
+            if (string.IsNullOrWhiteSpace(frontendRedirect) ||
+                frontendRedirect.Contains("/account/signin-google", StringComparison.OrdinalIgnoreCase))
+            {
+                var baseUrl = _config["AppSettings:FrontendBaseUrl"] ?? "https://frontend-alquimia.vercel.app/";
+                frontendRedirect = baseUrl.TrimEnd('/') + "/Login/RedirectGoogle";
+            }
+            return Ok(new
+            {
+                clientIdDefined = !string.IsNullOrWhiteSpace(_config["OAuth:ClientID"]),
+                loginEndpoint,
+                callback,
+                frontendRedirect
+            });
+        }
+
         [HttpPost("register-provider")]
         public async Task<IActionResult> RegisterProvider([FromBody] RegisterProviderDTO dto)
         {
@@ -182,7 +247,6 @@ namespace alquimia.Api.Controllers
                 Cuil = dto.Cuil,
                 Rubro = dto.Rubro,
                 OtroProducto = string.Join(",", dto.OtroProducto),
-                //TarjetaNombre = dto.TarjetaNombre,
                 TarjetaNumero = dto.TarjetaNumero,
                 TarjetaVencimiento = dto.TarjetaVencimiento,
                 TarjetaCVC = dto.TarjetaCVC
@@ -252,19 +316,14 @@ namespace alquimia.Api.Controllers
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
-            {
                 throw new KeyNotFoundException("Usuario no encontrado");
-            }
+
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var encodedToken = WebUtility.UrlEncode(token);
-
             var frontendBaseUrl = _config["AppSettings:FrontendBaseUrl"];
             var callbackUrl = $"{frontendBaseUrl}restablecer-contrasenia?email={model.Email}&token={encodedToken}";
-
             var message = _emailTemplate.GetPasswordResetEmail(user.Name, callbackUrl);
-
             await _emailService.SendEmailAsync(model.Email, "Recuperar contraseña - Alquimia", message);
-
             return Ok("Se envió un enlace para restablecer la contraseña.");
         }
 
@@ -276,12 +335,12 @@ namespace alquimia.Api.Controllers
                 throw new KeyNotFoundException("Usuario no encontrado");
 
             var result = await _userManager.ResetPasswordAsync(user, WebUtility.UrlDecode(model.Token), model.NewPassword);
-
             if (!result.Succeeded)
-                throw new ArgumentException("Ocurrió un error:" + result.Errors.Select(e => e.Description));
+                throw new ArgumentException("Ocurrió un error:" + string.Join(", ", result.Errors.Select(e => e.Description)));
 
             return Ok("Contraseña restablecida correctamente.");
         }
+
         private string GenerateUserNameSeguro(string email)
         {
             if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))

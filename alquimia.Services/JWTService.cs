@@ -31,7 +31,13 @@ new Claim("name", user.Name ?? string.Empty)
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var keyString = _config["Jwt:Key"];
+            if (string.IsNullOrWhiteSpace(keyString))
+            {
+                throw new InvalidOperationException("JWT signing key not configured");
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
