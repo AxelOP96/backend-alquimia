@@ -42,17 +42,12 @@ namespace alquimia.Services
                 var top = FormulaNoteHelper.CreateFormulaNote(dto.TopNotes);
                 var heart = FormulaNoteHelper.CreateFormulaNote(dto.HeartNotes);
                 var _base = FormulaNoteHelper.CreateFormulaNote(dto.BaseNotes);
-
                 _context.FormulaNotes.AddRange(top, heart, _base);
                 await _context.SaveChangesAsync();
-
                 var formulaConcentration = new FormulaConcentrationHelper().CalculateConcentrationBasedOnIntensity(dto.IntensityId);
-
                 Formula formula = CreateFormulaEntity(dto, top, heart, _base, formulaConcentration);
-
                 _context.Formulas.Add(formula);
                 await _context.SaveChangesAsync();
-
                 if (dto.CreatorId != null)
                 {
                     var user = await _context.Users.FindAsync(dto.CreatorId);
@@ -63,7 +58,6 @@ namespace alquimia.Services
                         await _context.SaveChangesAsync();
                     }
                 }
-
                 await transaction.CommitAsync();
                 return formula.Id;
             }

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace alquimia.Services.Interfaces
+﻿namespace alquimia.Services.Interfaces
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string destinatario, string asunto, string mensajeHtml);
+        Task SendEmailAsync(string recipient, string subject, string htmlMessage);
+        Task<bool> SendEmailWithAttachmentAsync(string toEmail, string subject, string htmlMessage, byte[] attachmentData, string attachmentFileName);
     }
 }

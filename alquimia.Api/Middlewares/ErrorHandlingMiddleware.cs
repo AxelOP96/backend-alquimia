@@ -58,6 +58,13 @@ namespace alquimia.Api.Middlewares
                         : exception.Message;
                     break;
 
+                case InvalidOperationException:
+                    status = (int)HttpStatusCode.InternalServerError; //500
+                    error = string.IsNullOrWhiteSpace(exception.Message)
+                        ? "Ocurrió un error inesperado."
+                        : exception.Message;
+                    break;
+
                 default:
                     status = (int)HttpStatusCode.InternalServerError; //500
                     error = "Ocurrió un error inesperado. Intente más tarde.";

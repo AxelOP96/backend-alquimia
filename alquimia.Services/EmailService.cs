@@ -8,13 +8,8 @@ namespace alquimia.Services
 {
     public class EmailService : IEmailService
     {
-        //private readonly IConfiguration _config;
         private readonly EmailSettings _settings;
 
-        //public EmailService(IConfiguration config)
-        //{
-        //    _config = config;
-        //}
         public EmailService(IOptions<EmailSettings> options)
         {
             _settings = options.Value;
@@ -24,7 +19,6 @@ namespace alquimia.Services
         {
             using var smtpClient = new SmtpClient(_settings.SmtpHost, _settings.SmtpPort)
             {
-                //Port = int.Parse(_config["Email:SmtpPort"]),
                 Credentials = new NetworkCredential(_settings.User, _settings.Password),
                 EnableSsl = true,
             };
@@ -39,5 +33,39 @@ namespace alquimia.Services
             mailMessage.To.Add(recipient);
             await smtpClient.SendMailAsync(mailMessage);
         }
+
+        public async Task<bool> SendEmailWithAttachmentAsync(string recipient, string subject, string htmlMessage, byte[] attachmentData, string attachmentFileName)
+        {
+            try
+            {
+                using var smtpClient = new SmtpClient(_settings.SmtpHost, _settings.SmtpPort)
+                {
+                    Credentials = new NetworkCredential(_settings.User, _settings.Password),
+                    EnableSsl = true,
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(_settings.From, "Alquimia"),
+                    Subject = subject,
+                    Body = htmlMessage,
+                    IsBodyHtml = true,
+                };
+
+                mailMessage.To.Add(recipient);
+
+                using var attachmentStream = new MemoryStream(attachmentData);
+                var attachment = new Attachment(attachmentStream, attachmentFileName, "application/pdf");
+                mailMessage.Attachments.Add(attachment);
+
+                await smtpClient.SendMailAsync(mailMessage);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
     }
 }

@@ -40,14 +40,24 @@ namespace alquimia.Services
             _context.OlfactoryFamilies.Add(family);
             await _context.SaveChangesAsync();
 
-            return family.Id;  
+            return family.Id;
         }
         public async Task UpdateOlfactoryFamilyAsync(OlfactoryFamily family)
         {
             _context.OlfactoryFamilies.Update(family);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<OlfactoryFamilyDTO>> GetAllFamilies()
+        {
+            var families = await _context.OlfactoryFamilies.ToListAsync();
 
+            return families.Select(f => new OlfactoryFamilyDTO
+            {
+                Id = f.Id,
+                Name = f.Nombre,
+                Description = f.Description,
+            }).ToList();
+        }
 
     }
 }

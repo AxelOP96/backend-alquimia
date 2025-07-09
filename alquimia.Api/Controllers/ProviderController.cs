@@ -16,16 +16,19 @@ namespace alquimia.Api.Controllers
         private readonly IProductService _productService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AlquimiaDbContext _context;
+        private readonly IMercadoLibreService _meliService;
 
 
         public ProviderController(
             IProductService productoservice,
             IHttpContextAccessor httpcontextaccessor,
-            AlquimiaDbContext context)
+            AlquimiaDbContext context,
+            IMercadoLibreService meliService)
         {
             _productService = productoservice;
             _httpContextAccessor = httpcontextaccessor;
             _context = context;
+            _meliService = meliService;
         }
 
         private int GetIdProvider()
@@ -196,6 +199,22 @@ namespace alquimia.Api.Controllers
                 Console.WriteLine($"Error al actualizar producto: {ex}");
                 return StatusCode(500, new { mensaje = "Error interno al actualizar el producto" });
             }
+        }
+
+        [HttpPost("sync-mercadolibre")]
+        public async Task<IActionResult> SyncMercadoLibreProducts([FromBody] MercadoLibreSyncDTO dto)
+        {
+            var idProveedor = GetIdProvider();
+            await _meliService.SyncProductsAsync(idProveedor, dto.AccessToken);
+            return NoContent();
+        }
+
+        [HttpPost("sync-mercadolibre-auth")]
+        public async Task<IActionResult> SyncMercadoLibreProductsAuth([FromBody] MercadoLibreAuthDTO dto)
+        {
+            var idProveedor = GetIdProvider();
+            await _meliService.SyncProductsFromCodeAsync(idProveedor, dto.Code, dto.RedirectUri);
+            return NoContent();
         }
 
     }

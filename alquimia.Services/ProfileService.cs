@@ -32,9 +32,14 @@ namespace alquimia.Services
                 Name = user.Name,
                 Email = user.Email,
                 EsProveedor = user.EsProveedor,
-                //CUIL = user.CUIL,
+                IdEstado = user.IdEstado,
+                CUIL = user.Cuil,
+                cantidadFavoritos = user.UserProducts.Count,
+                cantidadFormulas = user.Formulas.Count,
                 //Ubicacion = user.Ubicacion,
                 //CodigoPostal = user.CodigoPostal
+                Empresa = user.Empresa,
+                Rubro = user.Rubro,
             };
         }
 
@@ -88,28 +93,70 @@ namespace alquimia.Services
             return user.Products.ToList();
         }
 
-        public async Task<List<Product>> BringMyWishlist()
+        public async Task<List<ProductDTO>> GetUserWishlistAsync(string userId)
         {
-            var user = await GetCurrentUserAsync();
-            if (user == null)
-                return new List<Product>();
+            var userProducts = await _context.UserProducts
+            .Include(up => up.Producto)
+                .ThenInclude(p => p.ProductVariants)
+            .Where(up => up.UsuarioId.ToString() == userId && up.Producto != null)
+            .Select(up => up.Producto)
+            .ToListAsync();
 
-            return user.UserProducts.Select(up => up.Producto).ToList();
+            return userProducts.Select(p => new ProductDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Variants = p.ProductVariants.Select(v => new ProductVariantDTO
+                {
+                    Id = v.Id,
+                    Volume = v.Volume,
+                    Unit = v.Unit,
+                    Price = v.Price,
+                    Stock = v.Stock,
+                    Image = v.Image,
+                    IsHypoallergenic = v.IsHypoallergenic,
+                    IsVegan = v.IsVegan,
+                    IsParabenFree = v.IsParabenFree
+                }).ToList()
+            }).ToList();
         }
 
-        public async Task<UserProfileDto?> UpdateMyData(UserProfileDto dto)
+
+        public async Task<UserProfileDto?> UpdateMyData(UserProfileUpdateDto dto)
         {
             var user = await GetCurrentUserAsync();
             if (user == null) return null;
 
-            user.Name = dto.Name;
-            //user.CUIL = dto.CUIL;
+            if (dto.Name != null)
+                user.Name = dto.Name;
+            if (dto.Empresa != null)
+                user.Empresa = dto.Empresa;
+            if (dto.CUIL != null)
+                user.Cuil = dto.CUIL;
+            if (dto.Rubro != null)
+                user.Rubro = dto.Rubro;
             //user.Ubicacion = dto.Ubicacion;
             //user.CodigoPostal = dto.CodigoPostal;
 
+            // Persist the changes using the identity user manager to
+            // ensure all related identity fields are handled correctly
+            _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
-            return dto;
+
+            return new UserProfileDto
+            {
+                Name = user.Name,
+                Email = user.Email,
+                EsProveedor = user.EsProveedor,
+                IdEstado = user.IdEstado,
+                CUIL = user.Cuil,
+                Empresa = user.Empresa,
+                Rubro = user.Rubro,
+                cantidadFavoritos = user.UserProducts.Count,
+                cantidadFormulas = user.Formulas.Count,
+            };
         }
     }
 }

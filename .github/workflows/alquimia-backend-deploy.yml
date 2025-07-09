@@ -1,0 +1,91 @@
+name: Build and deploy ASP.NET Core app to Azure Web App - Alquimia-deploy-back
+
+on:
+  push:
+    branches: [ rama-develop-pre-presentacion ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish project
+        run: dotnet publish -c Release -o ./publish --no-build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-app
+          path: ./publish
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    environment:
+      name: Production
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dotnet-app
+
+      - name: Login to Azure (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id:      ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id:      ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+
+      - name: Set Azure App Settings & Connection Strings
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: Alquimia-deploy-back
+          app-settings-json: >-
+            [
+              { "name": "Jwt__Key", "value": "${{ secrets.JWT_SECRET_KEY }}", "slotSetting": false },
+              { "name": "Jwt__Issuer", "value": "AlquimiaAPI", "slotSetting": false },
+              { "name": "Jwt__Audience", "value": "AlquimiaFrontend", "slotSetting": false },
+              { "name": "Jwt__DurationInMinutes", "value": "60", "slotSetting": false },
+              { "name": "OAuth__ClientID", "value": "${{ secrets.GOOGLE_CLIENT_ID }}", "slotSetting": false },
+              { "name": "OAuth__ClientSecret", "value": "${{ secrets.GOOGLE_CLIENT_SECRET }}", "slotSetting": false },
+              { "name": "OAuth__Url", "value": "https://alquimia-deploy-back-a8dqhub8ekdff8dk.brazilsouth-01.azurewebsites.net/account/signin-google", "slotSetting": false },
+              { "name": "Email__User", "value": "${{ secrets.EMAIL_USER }}", "slotSetting": false },
+              { "name": "Email__Password", "value": "${{ secrets.EMAIL_PASSWORD }}", "slotSetting": false },
+              { "name": "Email__From", "value": "${{ secrets.EMAIL_FROM }}", "slotSetting": false },
+              { "name": "MercadoPago__AccessToken", "value": "${{ secrets.MP_ACCESS_TOKEN }}", "slotSetting": false },
+              { "name": "MercadoPago__PublicKey", "value": "${{ secrets.MP_PUBLIC_KEY }}", "slotSetting": false }
+            ]
+          connection-strings-json: >-
+            [
+              {
+                "name": "DefaultConnection",
+                "value": "Server=tcp:alquimiadb.database.windows.net,1433;Initial Catalog=alquimiaDB1;Persist Security Info=False;User ID=alquimia;Password=${{ secrets.DB_PASSWORD }};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=60",
+                "type": "SQLAzure",
+                "slotSetting": false
+              }
+            ]
+
+      - name: Deploy to Azure Web App
+        id: deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: Alquimia-deploy-back
+          slot-name: Production
+          package: .

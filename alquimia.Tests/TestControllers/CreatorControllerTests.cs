@@ -14,6 +14,9 @@ namespace alquimia.Tests.TestControllers
         private readonly Mock<IFormulaService> _mockFormulaService;
         private readonly Mock<IOlfactoryFamilyService> _mockOlfactoryFamilyService;
         private readonly Mock<IDesignLabelService> _mockDesignLabelService;
+        private readonly Mock<IEmailService> _mockEmailService;
+        private readonly Mock<IEmailTemplateService> _mockEmailTemplate;
+
 
         private readonly CreatorController _controller;
 
@@ -23,12 +26,16 @@ namespace alquimia.Tests.TestControllers
             _mockFormulaService = new Mock<IFormulaService>();
             _mockOlfactoryFamilyService = new Mock<IOlfactoryFamilyService>();
             _mockDesignLabelService = new Mock<IDesignLabelService>();
+            _mockEmailService = new Mock<IEmailService>();
+            _mockEmailTemplate = new Mock<IEmailTemplateService>();
 
             _controller = new CreatorController(
                 _mockNoteService.Object,
                 _mockFormulaService.Object,
                 _mockOlfactoryFamilyService.Object,
-                _mockDesignLabelService.Object
+                _mockDesignLabelService.Object,
+                _mockEmailService.Object,
+                _mockEmailTemplate.Object
                 );
         }
 

@@ -4,5 +4,6 @@
     {
         string GetPasswordResetEmail(string userName, string resetLink);
         string GetWelcomeEmail(string userName);
+        string GetDesignPDFProviderEmail(string provider, string creator);
     }
 }

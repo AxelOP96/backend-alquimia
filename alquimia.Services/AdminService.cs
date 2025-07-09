@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using alquimia.Data.Entities;
+﻿using alquimia.Data.Entities;
 using alquimia.Services.Interfaces;
 using alquimia.Services.Models;
 using Microsoft.AspNetCore.Identity;
@@ -32,6 +27,7 @@ namespace alquimia.Services
             foreach (var user in allUsers)
             {
                 var roles = await _userManager.GetRolesAsync(user);
+                Console.WriteLine($"User: {user.Email}, EsProveedor: {user.EsProveedor}, Roles: {string.Join(", ", roles)}");
                 if (roles.Contains("Creador") || roles.Contains("Proveedor"))
                 {
                     list.Add(new ProviderDTO
@@ -78,7 +74,6 @@ namespace alquimia.Services
             return true;
         }
 
-
         public async Task<bool> DeactivateProviderAsync(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -93,6 +88,25 @@ namespace alquimia.Services
             if (!currentRoles.Contains("Creador"))
                 await _userManager.AddToRoleAsync(user, "Creador");
             return true;
+        }
+
+        public async Task<ProviderDTO?> GetPendingOrApprovedProviderByEmailAsync(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null || !user.EsProveedor)
+                throw new NullReferenceException();
+
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains("Creador") && !roles.Contains("Proveedor"))
+                throw new NullReferenceException();
+
+            return new ProviderDTO
+            {
+                Id = user.Id,
+                Nombre = user.Name,
+                Email = user.Email,
+                EsAprobado = user.EsProveedor
+            };
         }
     }
 }

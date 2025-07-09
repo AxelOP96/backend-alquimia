@@ -1,4 +1,5 @@
-﻿using alquimia.Services.Interfaces;
+﻿using System.Security.Claims;
+using alquimia.Services.Interfaces;
 using alquimia.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ namespace alquimia.Api.Controllers
 {
     [Route("profile")]
     [ApiController]
-    [Authorize(Roles = "Creador")]
+
     public class ProfileController : Controller
     {
         private readonly IProfileService _profileService;
@@ -43,14 +44,19 @@ namespace alquimia.Api.Controllers
         }
 
         [HttpGet("wishlist")]
-        public async Task<IActionResult> GetMyWishlist()
+        public async Task<IActionResult> GetWishlist()
         {
-            var wishlist = await _profileService.BringMyWishlist();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var wishlist = await _profileService.GetUserWishlistAsync(userId);
             return Ok(wishlist);
         }
 
         [HttpPut("data")]
-        public async Task<IActionResult> UpdateMyData([FromBody] UserProfileDto updatedData)
+        public async Task<IActionResult> UpdateMyData([FromBody] UserProfileUpdateDto updatedData)
         {
             var user = await _profileService.UpdateMyData(updatedData);
             if (user == null)
