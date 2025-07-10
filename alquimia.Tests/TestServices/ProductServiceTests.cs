@@ -145,8 +145,6 @@ namespace alquimia.Tests.TestServices
             Assert.Equal("Tipo de producto no válido", exception.Message);
         }
 
-
-
         [Fact]
         public async Task UpdateProductAsync_ShouldThrowException_WhenProductNotFound()
         {
@@ -157,41 +155,6 @@ namespace alquimia.Tests.TestServices
 
             Assert.Equal("Producto no encontrado o no pertenece al proveedor", exception.Message);
         }
-
-
-
-        //[Fact]
-        //public async Task AddVariantsToProductAsync_ShouldAddVariant_WhenProductExists()
-        //{
-        //     
-        //    var product = new Product
-        //    {
-        //        Name = "Perfume A",
-        //        Description = "Perfume de prueba",
-        //        IdProveedor = 1
-        //    };
-
-        //    _context.Products.Add(product);
-        //    await _context.SaveChangesAsync();
-
-        //    var variantDTO = new CreateProductVariantDTO
-        //    {
-        //        Volume = 50,
-        //        Unit = "ml",
-        //        Price = 30.0M,
-        //        Stock = 20,
-        //        IsHypoallergenic = true
-        //    };
-
-        //     
-        //    await _productService.AddVariantsToProductAsync(product.Id, variantDTO);
-
-        //     
-        //    var variant = _context.ProductVariants.FirstOrDefault();
-        //    Assert.NotNull(variant);
-        //    Assert.Equal(50, variant.Volume);
-        //    Assert.Equal("ml", variant.Unit);
-        //}
 
         [Fact]
         public async Task DeleteVariantAsync_ShouldReturnTrue_WhenVariantIsDeleted()

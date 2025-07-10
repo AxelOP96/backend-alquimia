@@ -110,7 +110,6 @@ namespace alquimia.Tests.TestServices
             Directory.Delete(tempDir, recursive: true);
         }
 
-
         [Fact]
         public async Task GetDynamicNodeByIdAsync_Throws_WhenNoHandlerCanHandle()
         {

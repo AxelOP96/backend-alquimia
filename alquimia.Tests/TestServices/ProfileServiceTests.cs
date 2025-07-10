@@ -89,38 +89,6 @@ namespace alquimia.Tests.TestServices
             Assert.Null(result);
         }
 
-        //[Fact]
-        //public async Task BringMyFormulasAsync_UserHasFormula_ReturnsFormulaList()
-        //{
-        //    var context = GetDbContext();
-
-        //    var formula = new Formula { Id = 2, Title = "Formula1" };
-        //    context.Add(formula);
-        //    await context.SaveChangesAsync();
-
-        //    List<Formula> formulaMock = new List<Formula>();
-        //    formulaMock.Add(formula);
-
-        //    var user = new User
-        //    {
-        //        Id = 9,
-        //        Name = "UserWithFormula",
-        //        Email = "formula@user.com",
-        //        Formulas = formulaMock
-        //    };
-        //    context.Users.Add(user);
-        //    await context.SaveChangesAsync();
-
-        //    var userManager = GetUserManagerMock();
-        //    var httpContextAccessor = GetHttpContextAccessor(user.Id);
-        //    var service = new ProfileService(userManager, context, httpContextAccessor);
-
-        //    var result = await service.BringMyFormulasAsync();
-
-        //    Assert.Single(result);
-        //    Assert.Equal("Formula1", result.First().Title);
-        //}
-
         [Fact]
         public async Task BringMyFormulasAsync_UserWithoutFormula_ReturnsEmptyList()
         {
@@ -170,76 +138,6 @@ namespace alquimia.Tests.TestServices
             Assert.Contains(result, p => p.Name == "Producto 2");
         }
 
-
-        //[Fact]
-        //public async Task BringMyProducts_UserWithoutProducts_ReturnsEmptyList()
-        //{
-        //    var context = GetDbContext();
-
-        //    var user = new User { Id = 5, Name = "UserNoProducts", Email = "noproducts@user.com" };
-        //    context.Users.Add(user);
-        //    await context.SaveChangesAsync();
-
-        //    var userManager = GetUserManagerMock();
-        //    var httpContextAccessor = GetHttpContextAccessor(user.Id);
-        //    var service = new ProfileService(userManager, context, httpContextAccessor);
-
-        //    var result = await service.BringMyProducts();
-
-        //    Assert.Empty(result);
-        //}
-        //[Fact]
-        //public async Task BringMyWishlist_UserHasWishlist_ReturnsProductList()
-        //{
-        //    var context = GetDbContext();
-
-        //    var product1 = new Product { Id = 5, Name = "Producto Wishlist 1", Description = "Desc 1", TipoProductoId = 1 };
-        //    var product2 = new Product { Id = 6, Name = "Producto Wishlist 2", Description = "Desc 2", TipoProductoId = 1 };
-        //    context.AddRange(product1, product2);
-
-        //    var userProduct1 = new UserProduct { Id = 5, Producto = product1 };
-        //    var userProduct2 = new UserProduct { Id = 6, Producto = product2 };
-
-        //    var user = new User
-        //    {
-        //        Id = 6,
-        //        Name = "UserWishlist",
-        //        Email = "wishlist@user.com",
-        //        UserProducts = new List<UserProduct> { userProduct1, userProduct2 }
-        //    };
-        //    context.Users.Add(user);
-        //    await context.SaveChangesAsync();
-
-        //    var userManager = GetUserManagerMock();
-        //    var httpContextAccessor = GetHttpContextAccessor(user.Id);
-        //    var service = new ProfileService(userManager, context, httpContextAccessor);
-
-        //    var result = await service.BringMyWishlist();
-
-        //    Assert.Equal(2, result.Count);
-        //    Assert.Contains(result, p => p.Name == "Producto Wishlist 1");
-        //    Assert.Contains(result, p => p.Name == "Producto Wishlist 2");
-        //}
-
-
-        //[Fact]
-        //public async Task BringMyWishlist_UserWithoutWishlist_ReturnsEmptyList()
-        //{
-        //    var context = GetDbContext();
-
-        //    var user = new User { Id = 7, Name = "UserNoWishlist", Email = "nowishlist@user.com" };
-        //    context.Users.Add(user);
-        //    await context.SaveChangesAsync();
-
-        //    var userManager = GetUserManagerMock();
-        //    var httpContextAccessor = GetHttpContextAccessor(user.Id);
-        //    var service = new ProfileService(userManager, context, httpContextAccessor);
-
-        //    var result = await service.BringMyWishlist();
-
-        //    Assert.Empty(result);
-        //}
-
         [Fact]
         public async Task UpdateMyData_UserExists_UpdatesUserData()
         {
@@ -273,7 +171,6 @@ namespace alquimia.Tests.TestServices
             var updatedUser = await context.Users.FindAsync(user.Id);
             Assert.Equal("New Name", updatedUser.Name);
         }
-
 
         [Fact]
         public async Task UpdateMyData_UserDoesNotExist_ReturnsNull()
