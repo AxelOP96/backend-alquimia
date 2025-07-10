@@ -90,47 +90,6 @@ namespace alquimia.Tests.TestControllers
             Assert.IsType<OkObjectResult>(result);
         }
 
-        //[Fact]
-        //public async Task GetProductsByFormula_ShouldReturnBadRequest_WhenInvalidData()
-        //{
-        //    // Arrange
-        //    SearchByFormulaDTO invalidDto = null; 
-
-        //    // Act
-        //    var result = await _controller.GetProductsByFormula(invalidDto);
-
-        //    // Assert
-        //    Assert.IsType<BadRequestResult>(result);  
-        //}
-        //[Fact]
-        //public async Task GetProductsByFormula_ShouldReturnBadRequest_WhenFormulaIdIsNull()
-        //{
-        //    // Arrange
-        //    SearchByFormulaDTO invalidDto = new SearchByFormulaDTO { FormulaId = 0 }; 
-
-        //    // Act
-        //    var result = await _controller.GetProductsByFormula(invalidDto);
-
-        //    // Assert
-        //    Assert.IsType<BadRequestObjectResult>(result);
-        //}
-
-        //[Fact]
-        //public async Task GetProductsByFormula_ShouldReturnInternalServerError_WhenExceptionOccurs()
-        //{
-        //    // Arrange
-        //    var dto = new SearchByFormulaDTO { FormulaId = 1 };
-        //    _mockProductService.Setup(service => service.GetProductsByFormulaAsync(dto.FormulaId))
-        //        .ThrowsAsync(new Exception("Internal server error"));
-
-        //    // Act
-        //    var result = await _controller.GetProductsByFormula(dto);
-
-        //    // Assert
-        //    var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
-        //    Assert.Equal(500, statusCodeResult.StatusCode);  
-        //}
-
         [Fact]
         public async Task GetProductsByFormula_ShouldReturnOk_WhenNoProductsFound()
         {

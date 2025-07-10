@@ -146,44 +146,6 @@ namespace alquimia.Tests.TestControllers
             Assert.Contains("Usuario no encontrado", unauthorized.Value.ToString());
         }
 
-        //[Fact]
-        //public async Task Register_ShouldReturnToken_OnSuccess()
-        //{
-        //    var dto = new RegisterDTO { Email = "nuevo1@alquimia.com", Password = "Password123!", Name = "Nuevo", Rol = "Creador" };
-        //    var user = new User { Email = dto.Email, Name = dto.Name, UserName = "nuevo" };
-
-        //    _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync((User)null);
-        //    _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<User>(), dto.Password)).ReturnsAsync(IdentityResult.Success);
-        //    _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync(user);
-        //    _userManagerMock.Setup(x => x.IsInRoleAsync(user, dto.Rol)).ReturnsAsync(false);
-        //    _userManagerMock.Setup(x => x.AddToRoleAsync(user, dto.Rol)).ReturnsAsync(IdentityResult.Success);
-        //    _userManagerMock.Setup(x => x.GetRolesAsync(user)).ReturnsAsync(new List<string> { dto.Rol });
-        //    _jwtServiceMock.Setup(x => x.GenerateToken(user, It.IsAny<IList<string>>())).Returns("token-generado");
-
-        //    var result = await _controller.Register(dto);
-
-        //    var okResult = Assert.IsType<OkObjectResult>(result);
-        //    Assert.Contains("Usuario registrado correctamente", okResult.Value.ToString());
-        //}
-
-        //[Fact]
-        //public async Task Register_ShouldReturnError_WhenRoleAssignmentFails()
-        //{
-        //    var dto = new RegisterDTO { Email = "nuevo20@alquimia.com", Password = "Password123!", Name = "Nuevo", Rol = "Creador" };
-        //    var user = new User { Email = dto.Email, Name = dto.Name, UserName = "nuevo" };
-
-        //    _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync((User)null);
-        //    _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<User>(), dto.Password)).ReturnsAsync(IdentityResult.Success);
-        //    _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync(user);
-        //    _userManagerMock.Setup(x => x.IsInRoleAsync(user, dto.Rol)).ReturnsAsync(false);
-        //    _userManagerMock.Setup(x => x.AddToRoleAsync(user, dto.Rol)).ReturnsAsync(IdentityResult.Failed());
-
-        //    var result = await _controller.Register(dto);
-
-        //    var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        //    Assert.Contains("Error al asignar el rol", badRequest.Value.ToString());
-        //}
-
         [Fact]
         public async Task ObtenerPerfil_ShouldReturnCorrectUserData()
         {
